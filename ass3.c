@@ -14,14 +14,25 @@
 //
 
 
-
-
-
-
-
 #include <stdio.h>
 
-int main() {
+typeof struct _CardStack_
+{
+  char color;
+  int value;
+  struct cardStack *next;
+
+} CardSack;
+
+//variale initiation
+char *drawStack;
+
+//forward function declaration
+int readInitFile(FILE *file, char *cardStack);
+int checkDeck(*cardStack);
+
+int main(int argc, char* argv) {
+
   printf("Hello, World!\n");
   return 0;
 }
