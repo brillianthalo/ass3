@@ -45,13 +45,13 @@ int main(int argc, char* argv) {
   readInitFile(fp, *stack_array+0);
   return 0;
 }
-int addCardToStack(char color, int value, Card **card_stack)
+int addCardToStack(char color, int value, Card *card_stack)
 {
   Card *new_card;
   new_card = malloc(sizeof(Card));
   new_card->color = color;
   new_card->value = value;
-  new_card->next = *card_stack;
+  new_card->next = card_stack;
   *card_stack = new_card;
 }
 int readInitFile(FILE *file, Card *draw_stack)
