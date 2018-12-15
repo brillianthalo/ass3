@@ -25,7 +25,7 @@ typedef struct _Card_
 
 } Card;
 
-Card stack_array[7];
+Card* stack_array[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 FILE *fp;
 //variale initiation
@@ -42,20 +42,8 @@ int main(int argc, char* argv) {
   initializeStacks();
 
   fp = fopen(&argv[1], "r");
-  readInitFile(fp, stack_array);
+  readInitFile(fp, *stack_array+0);
   return 0;
-}
-int initializeStacks()
-{
-  for(int i = 0; i < sizeof(stack_array); i++)
-  {
-    Card *stack_initiation;
-    stack_initiation = malloc(sizeof(Card));
-    stack_array[i] = *stack_initiation;
-    stack_array[i].value = 0;
-    stack_array[i].color = '\0';
-    stack_array[i].next = NULL;
-  }
 }
 int addCardToStack(char color, int value, Card *card_stack)
 {
@@ -64,15 +52,16 @@ int addCardToStack(char color, int value, Card *card_stack)
   new_card->color = color;
   new_card->value = value;
   new_card->next = card_stack;
-  *card_stack = new_card;
+  card_stack = new_card;
 }
 int readInitFile(FILE *file, Card *draw_stack)
 {
   char current_color;
   int current_value;
+  int status = 0;
   while(!feof(file))
   {
-    int status;
+
     char current_character = fgetc(file);
     if(current_character == ' ')
     {
@@ -80,20 +69,24 @@ int readInitFile(FILE *file, Card *draw_stack)
     }
     switch(status)
     {
-      case 1:
+      case 0:
         if(current_character == 'B')
         {
+          status = 1;
+        }
+        else if (current_character == 'R')
+        {
+          status = 3;
+        }
+        break;
+      case 1:
+        if(current_character == 'K')
+        {
+          current_color = 'B';
           status = 2;
         }
         break;
       case 2:
-        if(current_character == 'K')
-        {
-          current_color = 'B';
-          status = 3;
-        }
-        break;
-      case 3:
         switch(current_character)
         {
           case 'A':
@@ -113,6 +106,15 @@ int readInitFile(FILE *file, Card *draw_stack)
             break;
         }
         addCardToStack(current_color, current_value, **stack_array[0]);
+        status = 0;
+        break;
+      case 3:
+        if(current_character == 'D')
+        {
+          current_color = 'R';
+          status = 2;
+        }
+        break;
 
     }
   }
