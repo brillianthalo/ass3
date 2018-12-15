@@ -17,11 +17,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define FILEPATH "config.txt"
+
 typedef struct _Card_
 {
   char color;
   int value;
-  struct Card *next;
+  struct _Card_ *next;
 
 } Card;
 
@@ -39,9 +41,9 @@ int main(int argc, char* argv) {
 
   printf("Hello, World!\n");
 
-  initializeStacks();
+//  initializeStacks();
 
-  fp = fopen(&argv[1], "r");
+  fp = fopen(FILEPATH, "r");
   readInitFile(fp, *stack_array+0);
   return 0;
 }
@@ -52,10 +54,11 @@ int addCardToStack(char color, int value, Card *card_stack)
   new_card->color = color;
   new_card->value = value;
   new_card->next = card_stack;
-  *card_stack = new_card;
+  card_stack = new_card;
 }
 int readInitFile(FILE *file, Card *draw_stack)
 {
+  printf("readInitFile");
   char current_color;
   int current_value;
   int status = 0;
@@ -63,8 +66,15 @@ int readInitFile(FILE *file, Card *draw_stack)
   {
 
     char current_character = fgetc(file);
+    if(file == NULL)
+    {
+      printf("NULL");
+      return 0;
+    }
+    printf("current_character: %i", current_character);
     if(current_character == ' ')
     {
+      printf("continue");
       continue;
     }
     switch(status)
@@ -102,9 +112,10 @@ int readInitFile(FILE *file, Card *draw_stack)
             current_value = 13;
             break;
           default:
-            current_value = atoi(*current_character);
+            current_value = current_character - '0';
             break;
         }
+        printf("color: %c, value: %i",current_color, current_value);
         addCardToStack(current_color, current_value, stack_array[0]);
         status = 0;
         break;
