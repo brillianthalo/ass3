@@ -17,7 +17,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FILEPATH "config.txt"
+#define MAXSTACK 7
+#define DRAW_STACK 0
+#define GAME_STACK_1 1
+#define GAME_STACK_2 2
+#define GAME_STACK_3 3
+#define GAME_STACK_4 4
+#define DEP_STACK_1 5
+#define DEP_STACK_2 6
 
 typedef struct _Card_
 {
@@ -39,28 +46,44 @@ typedef enum _ReturnValue_
   INVALID_FILE = -2,
 } ReturnValue;
 
-Stack* stack_array[7];
+Stack stack_array[7] = [{NULL, NULL},
+                        {NULL, NULL},
+                        {NULL, NULL},
+                        {NULL, NULL},
+                        {NULL, NULL},
+                        {NULL, NULL},
+                        {NULL, NULL}];
 
 FILE *fp;
 //variale initiation
 
 //forward function declaration
 ReturnValue readInitFile(const char *file, Stack *draw_stack);
-int checkDeck(Card *card_stack);
+int initStackArray();
 
 ReturnValue printErrorMessage(ReturnValue return_value);
 
 int main(int argc, char* argv[]) {
 
-  printf("Hello, World!\n");
 
 //  initializeStacks();
+ // initStackArray();
   printf("argv: %s\n", argv[1]);
-  ReturnValue return_value = readInitFile(argv[1], *(stack_array+0));
+  ReturnValue return_value = readInitFile(argv[1], stack_array[DRAW_STACK]);
 
   if(return_value != EVERYTHING_OK)
   {
     return printErrorMessage(return_value);
+  }
+  return 0;
+}
+
+int initStackArray()
+{
+  for(int stack_number = 0; stack_number < (sizeof(stack_array) : sizeof(*stack_array)); stack_number++)
+  {
+    stack_array[stack_number].top_card = NULL;
+    stack_array[stack_number].bottom_card = NULL;
   }
   return 0;
 }
@@ -96,19 +119,18 @@ int addCardToStackTop(char color, int value, Stack *card_stack)
 ReturnValue readInitFile(const char *path, Stack *draw_stack)
 {
   fp = fopen(path, "r");
+  if(fp == NULL)
+  {
+    printf("file is NULL\n");
+    return INVALID_FILE;
+  }
   printf("readInitFile\n");
   char current_color;
   int current_value;
   int status = 0;
   while(!feof(fp))
   {
-
     int current_character = fgetc(fp);
-    if(fp == NULL)
-    {
-      printf("file is NULL\n");
-      return INVALID_FILE;
-    }
     printf("current_character: %c, status: %i\n", current_character, status);
     if(current_character == ' ')
     {
