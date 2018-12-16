@@ -136,14 +136,15 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
   {
     int current_character = fgetc(fp);
     printf("current_character: %c, status: %i\n", current_character, status);
-    if(current_character == ' ')
+    if(current_character == ' ' || current_character == '\n')
     {
-      printf("continue");
+      printf("continue\n");
       continue;
     }
     switch(status)
     {
       case 0:
+        status = -1;
         if(current_character == 'B')
         {
           status = 1;
@@ -154,24 +155,28 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
         }
         break;
       case 1:
+        status = -1;
         if(current_character == 'L')
         {
           status = 2;
         }
         break;
       case 2:
+        status = -1;
         if(current_character == 'A')
         {
           status = 3;
         }
         break;
       case 3:
+        status = -1;
         if(current_character == 'C')
         {
           status = 4;
         }
         break;
       case 4:
+        status = -1;
         if(current_character == 'K')
         {
           current_color = 'B';
@@ -179,12 +184,14 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
         }
         break;
       case 5:
+        status = -1;
         if(current_character == 'E')
         {
           status = 6;
         }
         break;
       case 6:
+        status = -1;
         if(current_character == 'D')
         {
           current_color = 'R';
@@ -230,10 +237,13 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
           default:
             return INVALID_FILE;
         }
-        printf("color: %c, value: %i",current_color, current_value);
+        printf("color: %c, value: %i\n",current_color, current_value);
         addCardToStackTop(current_color, current_value, stack_array[0]);
         status = 0;
         break;
+      case -1:
+      default:
+        return INVALID_FILE;
 
     }
   }
