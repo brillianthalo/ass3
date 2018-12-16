@@ -63,12 +63,13 @@ ReturnValue readInitFile(const char *file, Stack draw_stack);
 int initStackArray();
 
 ReturnValue printErrorMessage(ReturnValue return_value);
+int printStack(Stack stack);
 
 int main(int argc, char* argv[]) {
 
 
 //  initializeStacks();
- // initStackArray();
+//  initStackArray();
   printf("argv: %s\n", argv[1]);
   ReturnValue return_value = readInitFile(argv[1], stack_array[DRAW_STACK]);
 
@@ -76,6 +77,7 @@ int main(int argc, char* argv[]) {
   {
     return printErrorMessage(return_value);
   }
+  printStack(stack_array[DRAW_STACK]);
   return 0;
 }
 
@@ -255,7 +257,7 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
         }
         card_count++;
         printf("color: %c, value: %i\n",current_color, current_value);
-        addCardToStackTop(current_color, current_value, stack_array[0]);
+        addCardToStackTop(current_color, current_value, stack_array[DRAW_STACK]);
         status = 0;
         break;
       case -1:
@@ -266,4 +268,13 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
   }
   ReturnValue return_value = (card_count == 26) ? EVERYTHING_OK : INVALID_FILE;
   return return_value;
+}
+int printStack(Stack stack)
+{
+  Card *actual_card = stack.bottom_card;
+  while(actual_card->previous != NULL)
+  {
+    printf("%c %i\n", actual_card->color, actual_card->value);
+  }
+  return 0;
 }
