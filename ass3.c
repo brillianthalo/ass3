@@ -25,7 +25,7 @@
 #define GAME_STACK_4 4
 #define DEP_STACK_1 5
 #define DEP_STACK_2 6
-
+#define MATCHFIELDHEIGHT 18
 typedef struct _Card_
 {
   char color;
@@ -61,9 +61,11 @@ int initialized_cards[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 //forward function declaration
 ReturnValue readInitFile(const char *file, Stack draw_stack);
 int initStackArray();
+int moveCard(Stack *from_stack, Stack *to_stack);
+int initialHandOut();
 
 ReturnValue printErrorMessage(ReturnValue return_value);
-int printStack(Stack stack);
+int printStack(Stack *stack);
 
 int main(int argc, char* argv[]) {
 
@@ -77,7 +79,11 @@ int main(int argc, char* argv[]) {
   {
     return printErrorMessage(return_value);
   }
-  printStack(stack_array[DRAW_STACK]);
+
+  initialHandOut();
+
+  printStack(&stack_array[DRAW_STACK]);
+  printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
 }
 
@@ -109,27 +115,55 @@ ReturnValue printErrorMessage(ReturnValue return_value)
   return return_value;
 }
 
-int addCardToStackTop(char color, int value, Stack card_stack)
+int addCardToStackTop(Card *new_card, Stack *card_stack)
 {
-  Card *new_card;
-  new_card = malloc(sizeof(Card));
-  new_card->color = color;
-  new_card->value = value;
-  new_card->next = card_stack.top_card;
-  new_card->previous = NULL;
-  card_stack.top_card = new_card;
-  if(card_stack.bottom_card == NULL)
+
+  new_card->next = card_stack->top_card;
+  if(card_stack->top_card != NULL)
   {
-    card_stack.bottom_card = new_card;
+    card_stack->top_card->previous = new_card;
+  }
+  new_card->previous = NULL;
+  card_stack->top_card = new_card;
+  if(card_stack->bottom_card == NULL)
+  {
+    card_stack->bottom_card = new_card;
   }
 }
+
+int moveCard(Stack *from_stack, Stack *to_stack)
+{
+  Card *moving_card = from_stack->top_card;
+  from_stack->top_card = moving_card->next;
+  from_stack->top_card->previous = NULL;
+  if(from_stack->top_card == NULL)
+  {
+    from_stack->bottom_card == NULL;
+  }
+  addCardToStackTop(moving_card, &to_stack);
+
+}
+
+int initialHandOut ()
+{
+  for(int offset = 0; offset < 4; offset++)
+  {
+    printf("offset: %i\n", offset);
+    for(int distribute = (0 + offset); distribute < 4; distribute++)
+    {
+      printf("distribute: %i\n", distribute);
+      moveCard(&stack_array[DRAW_STACK], &stack_array[distribute + 1]);
+    }
+  }
+}
+
 ReturnValue checkCard (char color, int value)
 {
   if(color == 'R')
   {
     value += 13;
   }
-  ReturnValue returnValue = (++(initialized_cards[value - 1]) != 1) ? INVALID_FILE : EVERYTHING_OK;
+  ReturnValue returnValue = (++(initialized_cards[value - 1]) == 1) ? EVERYTHING_OK : INVALID_FILE;
   return returnValue;
 }
 ReturnValue readInitFile(const char *path, Stack draw_stack)
@@ -148,10 +182,10 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
   while(!feof(fp))
   {
     int current_character = fgetc(fp);
-    printf("current_character: %c, status: %i\n", current_character, status);
+    //printf("current_character: %c, status: %i\n", current_character, status);
     if(current_character == ' ' || current_character == '\n')
     {
-      printf("continue\n");
+      //printf("continue\n");
       continue;
     }
     switch(status)
@@ -256,8 +290,12 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
           return check_card_return;
         }
         card_count++;
-        printf("color: %c, value: %i\n",current_color, current_value);
-        addCardToStackTop(current_color, current_value, stack_array[DRAW_STACK]);
+        //printf("color: %c, value: %i\n",current_color, current_value);
+        Card *new_card;
+        new_card = malloc(sizeof(Card));
+        new_card->color = current_color;
+        new_card->value = current_value;
+        addCardToStackTop(new_card, &stack_array[DRAW_STACK]);
         status = 0;
         break;
       case -1:
@@ -269,12 +307,33 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
   ReturnValue return_value = (card_count == 26) ? EVERYTHING_OK : INVALID_FILE;
   return return_value;
 }
-int printStack(Stack stack)
+int printStack(Stack *stack)
 {
-  Card *actual_card = stack.bottom_card;
-  while(actual_card->previous != NULL)
+  Card *actual_card = stack->bottom_card;
+  while(actual_card != NULL)
   {
     printf("%c %i\n", actual_card->color, actual_card->value);
+    actual_card = actual_card->previous;
   }
   return 0;
+}
+
+int printMatchfield ()
+{
+  printf("0   | 1   | 2   | 3   | 4   | DEP | DEP\n");
+  printf("---------------------------------------\n");
+  Stack stack_array_save[] = stack_array;
+  for(int current_matchfield_row = 0; current_matchfield_row < MATCHFIELDHEIGHT;
+    current_matchfield_row++)
+  {
+
+    for(int current_col; current_col < MAXSTACK; current_col++)
+    {
+
+
+      printf("%c%i%c  |",);
+
+    }
+    printf("\n");
+  }
 }
