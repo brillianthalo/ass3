@@ -56,7 +56,8 @@ Stack stack_array[7] = {{NULL, NULL},
 
 FILE *fp;
 //variale initiation
-
+int initialized_cards[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 //forward function declaration
 ReturnValue readInitFile(const char *file, Stack draw_stack);
 int initStackArray();
@@ -120,6 +121,15 @@ int addCardToStackTop(char color, int value, Stack card_stack)
     card_stack.bottom_card = new_card;
   }
 }
+ReturnValue checkCard (char color, int value)
+{
+  if(color == 'R')
+  {
+    value += 13;
+  }
+  ReturnValue returnValue = (++(initialized_cards[value - 1]) != 1) ? INVALID_FILE : EVERYTHING_OK;
+  return returnValue;
+}
 ReturnValue readInitFile(const char *path, Stack draw_stack)
 {
   fp = fopen(path, "r");
@@ -132,6 +142,7 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
   char current_color;
   int current_value;
   int status = 0;
+  int card_count = 0;
   while(!feof(fp))
   {
     int current_character = fgetc(fp);
@@ -237,6 +248,12 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
           default:
             return INVALID_FILE;
         }
+        ReturnValue check_card_return = checkCard(current_color, current_value);
+        if(check_card_return != EVERYTHING_OK)
+        {
+          return check_card_return;
+        }
+        card_count++;
         printf("color: %c, value: %i\n",current_color, current_value);
         addCardToStackTop(current_color, current_value, stack_array[0]);
         status = 0;
@@ -247,5 +264,6 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
 
     }
   }
-  return EVERYTHING_OK;
+  ReturnValue return_value = (card_count == 26) ? EVERYTHING_OK : INVALID_FILE;
+  return return_value;
 }
