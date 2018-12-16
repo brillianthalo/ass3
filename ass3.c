@@ -46,19 +46,19 @@ typedef enum _ReturnValue_
   INVALID_FILE = -2,
 } ReturnValue;
 
-Stack stack_array[7] = [{NULL, NULL},
+Stack stack_array[7] = {{NULL, NULL},
                         {NULL, NULL},
                         {NULL, NULL},
                         {NULL, NULL},
                         {NULL, NULL},
                         {NULL, NULL},
-                        {NULL, NULL}];
+                        {NULL, NULL}};
 
 FILE *fp;
 //variale initiation
 
 //forward function declaration
-ReturnValue readInitFile(const char *file, Stack *draw_stack);
+ReturnValue readInitFile(const char *file, Stack draw_stack);
 int initStackArray();
 
 ReturnValue printErrorMessage(ReturnValue return_value);
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 
 int initStackArray()
 {
-  for(int stack_number = 0; stack_number < (sizeof(stack_array) : sizeof(*stack_array)); stack_number++)
+  for(int stack_number = 0; stack_number < (sizeof(stack_array) / sizeof(*stack_array)); stack_number++)
   {
     stack_array[stack_number].top_card = NULL;
     stack_array[stack_number].bottom_card = NULL;
@@ -106,17 +106,17 @@ ReturnValue printErrorMessage(ReturnValue return_value)
   return return_value;
 }
 
-int addCardToStackTop(char color, int value, Stack *card_stack)
+int addCardToStackTop(char color, int value, Stack card_stack)
 {
   Card *new_card;
   new_card = malloc(sizeof(Card));
   new_card->color = color;
   new_card->value = value;
-  new_card->next = card_stack->top_card;
+  new_card->next = card_stack.top_card;
   new_card->previous = NULL;
-  card_stack->top_card = new_card;
+  card_stack.top_card = new_card;
 }
-ReturnValue readInitFile(const char *path, Stack *draw_stack)
+ReturnValue readInitFile(const char *path, Stack draw_stack)
 {
   fp = fopen(path, "r");
   if(fp == NULL)
