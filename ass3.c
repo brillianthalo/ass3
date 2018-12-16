@@ -25,7 +25,7 @@
 #define GAME_STACK_4 4
 #define DEP_STACK_1 5
 #define DEP_STACK_2 6
-#define MATCHFIELDHEIGHT 18
+#define MATCHFIELDHEIGHT 16
 typedef struct _Card_
 {
   char color;
@@ -66,6 +66,7 @@ int initialHandOut();
 
 ReturnValue printErrorMessage(ReturnValue return_value);
 int printStack(Stack *stack);
+int printMatchfield();
 
 int main(int argc, char* argv[]) {
 
@@ -82,7 +83,8 @@ int main(int argc, char* argv[]) {
 
   initialHandOut();
 
-  printStack(&stack_array[DRAW_STACK]);
+  //printStack(&stack_array[DRAW_STACK]);
+  printMatchfield();
   printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
 }
@@ -140,7 +142,7 @@ int moveCard(Stack *from_stack, Stack *to_stack)
   {
     from_stack->bottom_card == NULL;
   }
-  addCardToStackTop(moving_card, &to_stack);
+  addCardToStackTop(moving_card, to_stack);
 
 }
 
@@ -151,7 +153,7 @@ int initialHandOut ()
     printf("offset: %i\n", offset);
     for(int distribute = (0 + offset); distribute < 4; distribute++)
     {
-      printf("distribute: %i\n", distribute);
+     // printf("distribute: %i\n", distribute);
       moveCard(&stack_array[DRAW_STACK], &stack_array[distribute + 1]);
     }
   }
@@ -322,16 +324,53 @@ int printMatchfield ()
 {
   printf("0   | 1   | 2   | 3   | 4   | DEP | DEP\n");
   printf("---------------------------------------\n");
-  Stack stack_array_save[] = stack_array;
+  Card* current_pointer[MAXSTACK];
+  for(int pointer_copy = 0; pointer_copy < MAXSTACK; pointer_copy++)
+  {
+    current_pointer[pointer_copy] = (stack_array + pointer_copy)->bottom_card;
+  }
   for(int current_matchfield_row = 0; current_matchfield_row < MATCHFIELDHEIGHT;
     current_matchfield_row++)
   {
-
-    for(int current_col; current_col < MAXSTACK; current_col++)
+    for(int current_col = 0; current_col < MAXSTACK; current_col++)
     {
-
-
-      printf("%c%i%c  |",);
+      char *current_col_end = (current_col != (MAXSTACK - 1) ? " | " : "");
+      Card* current_card = current_pointer[current_col];
+      if(current_card == NULL)
+      {
+        printf("    | ");
+      }
+      else
+      {
+        char current_color = current_card->color;
+        int current_value = current_card->value;
+        char *current_value_to_s = malloc(3);
+        switch (current_value)
+        {
+          case 1:
+            *current_value_to_s = "A ";
+            break;
+          case 10:
+            *current_value_to_s = "10";
+            break;
+          case 11:
+            *current_value_to_s = "J ";
+            break;
+          case 12:
+            *current_value_to_s = "Q ";
+            break;
+          case 13:
+            *current_value_to_s = "K ";
+            break;
+          default:
+            *(current_value_to_s + 0) = '0' + current_value;
+            *(current_value_to_s + 1) = ' ';
+            break;
+        }
+        printf("%c%s%s", current_color, current_value_to_s, current_col_end);
+      }
+      current_pointer[current_col] = (current_card != NULL)
+        ? current_card->previous : NULL;
 
     }
     printf("\n");
