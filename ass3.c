@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 
 int initStackArray()
 {
-  for(int stack_number = 0; stack_number < (sizeof(stack_array) / sizeof(*stack_array)); stack_number++)
+  for(int stack_number = 0; stack_number < MAXSTACK; stack_number++)
   {
     stack_array[stack_number].top_card = NULL;
     stack_array[stack_number].bottom_card = NULL;
@@ -115,6 +115,10 @@ int addCardToStackTop(char color, int value, Stack card_stack)
   new_card->next = card_stack.top_card;
   new_card->previous = NULL;
   card_stack.top_card = new_card;
+  if(card_stack.bottom_card == NULL)
+  {
+    card_stack.bottom_card = new_card;
+  }
 }
 ReturnValue readInitFile(const char *path, Stack draw_stack)
 {
