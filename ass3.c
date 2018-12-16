@@ -24,54 +24,92 @@ typedef struct _Card_
   char color;
   int value;
   struct _Card_ *next;
+  struct _Card_ *previous;
 
 } Card;
 
-Card* stack_array[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+typedef struct _Stack_ {
+  Card *top_card;
+  Card *bottom_card;
+} Stack;
+typedef enum _ReturnValue_
+{
+  EVERYTHING_OK = 0,
+  INVALID_ARG_COUNT = -1,
+  INVALID_FILE = -2,
+} ReturnValue;
+
+Stack* stack_array[7];
 
 FILE *fp;
 //variale initiation
 
 //forward function declaration
-int readInitFile(FILE *file, Card *draw_stack);
+ReturnValue readInitFile(const char *file, Stack *draw_stack);
 int checkDeck(Card *card_stack);
-int initializeStacks();
 
-int main(int argc, char* argv) {
+ReturnValue printErrorMessage(ReturnValue return_value);
+
+int main(int argc, char* argv[]) {
 
   printf("Hello, World!\n");
 
 //  initializeStacks();
+  printf("argv: %s\n", argv[1]);
+  ReturnValue return_value = readInitFile(argv[1], *(stack_array+0));
 
-  fp = fopen(FILEPATH, "r");
-  readInitFile(fp, *stack_array+0);
+  if(return_value != EVERYTHING_OK)
+  {
+    return printErrorMessage(return_value);
+  }
   return 0;
 }
-int addCardToStack(char color, int value, Card *card_stack)
+
+ReturnValue printErrorMessage(ReturnValue return_value)
+{
+  switch(return_value)
+  {
+    case INVALID_ARG_COUNT:
+      printf("[ERR] Wrong number of parameters. Usage ./ass1 <config-file>\n");
+      break;
+    case INVALID_FILE:
+      printf("[ERR] Config-File is invalid.\n");
+      break;
+
+    case EVERYTHING_OK:
+      //left blank intentionally
+      break;
+  }
+  return return_value;
+}
+
+int addCardToStackTop(char color, int value, Stack *card_stack)
 {
   Card *new_card;
   new_card = malloc(sizeof(Card));
   new_card->color = color;
   new_card->value = value;
-  new_card->next = card_stack;
-  card_stack = new_card;
+  new_card->next = card_stack->top_card;
+  new_card->previous = NULL;
+  card_stack->top_card = new_card;
 }
-int readInitFile(FILE *file, Card *draw_stack)
+ReturnValue readInitFile(const char *path, Stack *draw_stack)
 {
-  printf("readInitFile");
+  fp = fopen(path, "r");
+  printf("readInitFile\n");
   char current_color;
   int current_value;
   int status = 0;
-  while(!feof(file))
+  while(!feof(fp))
   {
 
-    char current_character = fgetc(file);
-    if(file == NULL)
+    int current_character = fgetc(fp);
+    if(fp == NULL)
     {
-      printf("NULL");
-      return 0;
+      printf("file is NULL\n");
+      return INVALID_FILE;
     }
-    printf("current_character: %i", current_character);
+    printf("current_character: %c, status: %i\n", current_character, status);
     if(current_character == ' ')
     {
       printf("continue");
@@ -86,19 +124,60 @@ int readInitFile(FILE *file, Card *draw_stack)
         }
         else if (current_character == 'R')
         {
-          status = 3;
+          status = 5;
         }
         break;
       case 1:
-        if(current_character == 'K')
+        if(current_character == 'L')
         {
-          current_color = 'B';
           status = 2;
         }
         break;
       case 2:
+        if(current_character == 'A')
+        {
+          status = 3;
+        }
+        break;
+      case 3:
+        if(current_character == 'C')
+        {
+          status = 4;
+        }
+        break;
+      case 4:
+        if(current_character == 'K')
+        {
+          current_color = 'B';
+          status = 7;
+        }
+        break;
+      case 5:
+        if(current_character == 'E')
+        {
+          status = 6;
+        }
+        break;
+      case 6:
+        if(current_character == 'D')
+        {
+          current_color = 'R';
+          status = 7;
+        }
+        break;
+      case 7:
         switch(current_character)
         {
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            current_value = current_character - '0';
+            break;
           case 'A':
             current_value = 1;
             break;
@@ -111,22 +190,26 @@ int readInitFile(FILE *file, Card *draw_stack)
           case 'K':
             current_value = 13;
             break;
-          default:
-            current_value = current_character - '0';
+          case '1':
+            current_character = fgetc(fp);
+            if(current_character == '0')
+            {
+              current_value = 10;
+            }
+            else
+            {
+              return INVALID_FILE;
+            }
             break;
+          default:
+            return INVALID_FILE;
         }
         printf("color: %c, value: %i",current_color, current_value);
-        addCardToStack(current_color, current_value, stack_array[0]);
+        addCardToStackTop(current_color, current_value, stack_array[0]);
         status = 0;
-        break;
-      case 3:
-        if(current_character == 'D')
-        {
-          current_color = 'R';
-          status = 2;
-        }
         break;
 
     }
   }
+  return EVERYTHING_OK;
 }
