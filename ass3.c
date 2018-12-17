@@ -15,6 +15,7 @@
 
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #define MAXSTACK 7
@@ -73,7 +74,7 @@ int main(int argc, char* argv[]) {
 
 //  initializeStacks();
 //  initStackArray();
-  printf("argv: %s\n", argv[1]);
+  //printf("argv: %s\n", argv[1]);
   ReturnValue return_value = readInitFile(argv[1], stack_array[DRAW_STACK]);
 
   if(return_value != EVERYTHING_OK)
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]) {
 
   //printStack(&stack_array[DRAW_STACK]);
   printMatchfield();
-  printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
+  //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
 }
 
@@ -150,7 +151,7 @@ int initialHandOut ()
 {
   for(int offset = 0; offset < 4; offset++)
   {
-    printf("offset: %i\n", offset);
+    //printf("offset: %i\n", offset);
     for(int distribute = (0 + offset); distribute < 4; distribute++)
     {
      // printf("distribute: %i\n", distribute);
@@ -173,10 +174,10 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
   fp = fopen(path, "r");
   if(fp == NULL)
   {
-    printf("file is NULL\n");
+    //printf("file is NULL\n");
     return INVALID_FILE;
   }
-  printf("readInitFile\n");
+  //("readInitFile\n");
   char current_color;
   int current_value;
   int status = 0;
@@ -334,41 +335,54 @@ int printMatchfield ()
   {
     for(int current_col = 0; current_col < MAXSTACK; current_col++)
     {
-      char *current_col_end = (current_col != (MAXSTACK - 1) ? " | " : "");
+      char current_col_end[4] = "\0\0\0\0";
+      char current_color;
+      int current_value;
+      char current_value_to_s[3] = "\0\0\0";
+      //printf("current_col: %i", current_col);
+      (current_col != (MAXSTACK - 1)) ? strcpy(current_col_end, " | ") : strcpy(current_col_end, "\0\0\0\0");
       Card* current_card = current_pointer[current_col];
       if(current_card == NULL)
       {
-        printf("    | ");
+        current_color = ' ';
+        strcpy(current_value_to_s, "  ");
+      }
+      else if (current_col == DRAW_STACK && current_card->previous != NULL)
+      {
+        current_color = 'X';
+        strcpy(current_value_to_s, "  ");
       }
       else
       {
-        char current_color = current_card->color;
-        int current_value = current_card->value;
-        char *current_value_to_s = malloc(3);
+        current_color = current_card->color;
+        current_value = current_card->value;
+        current_value_to_s[3];
         switch (current_value)
         {
           case 1:
-            *current_value_to_s = "A ";
+            strcpy(current_value_to_s, "A ");
             break;
           case 10:
-            *current_value_to_s = "10";
+            strcpy(current_value_to_s, "10");
             break;
           case 11:
-            *current_value_to_s = "J ";
+            strcpy(current_value_to_s, "J ");
             break;
           case 12:
-            *current_value_to_s = "Q ";
+            strcpy(current_value_to_s, "Q ");
             break;
           case 13:
-            *current_value_to_s = "K ";
+            strcpy(current_value_to_s, "K ");
             break;
           default:
-            *(current_value_to_s + 0) = '0' + current_value;
-            *(current_value_to_s + 1) = ' ';
+            current_value_to_s[0] = '0' + current_value;
+            current_value_to_s[1] = ' ';
+            current_value_to_s[2] = '\0';
             break;
         }
-        printf("%c%s%s", current_color, current_value_to_s, current_col_end);
+
       }
+      printf("%c%s%s", current_color, current_value_to_s, current_col_end);
       current_pointer[current_col] = (current_card != NULL)
         ? current_card->previous : NULL;
 
