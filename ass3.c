@@ -61,6 +61,7 @@ int initialHandOut(Stack *stack_array);
 ReturnState printErrorMessage(ReturnState return_value);
 //int printStack(Stack *stack);
 int printMatchfield(Stack *stack_array);
+int printHelp();
 Card* findCardByColorValue(char color, int value, Stack *stack_array);
 
 int main(int argc, char* argv[]) {
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) {
   initialHandOut(stack_array);
   //printStack(&stack_array[DRAW_STACK]);
   printMatchfield(stack_array);
-  Card* test_move = findCardByColorValue('B', 8, stack_array);
+  Card* test_move = findCardByColorValue('B', 9, stack_array);
   moveCard(test_move, stack_array + GAME_STACK_2);
   printMatchfield(stack_array);
  // while(exit_status)
@@ -92,6 +93,12 @@ int main(int argc, char* argv[]) {
   //  fgets()
   //}
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
+  return 0;
+}
+
+int printHelp()
+{
+  printf("possible command:\n - move <color> <value> to <stacknumber>\n - help\n - exit\n");
   return 0;
 }
 
@@ -121,7 +128,6 @@ int addCardToStackTop(Card *new_card, Stack *card_stack)
   {
     card_stack->top_card->previous = new_card;
   }
-  new_card->previous = NULL;
   card_stack->top_card = new_card;
   if(card_stack->bottom_card == NULL)
   {
@@ -152,19 +158,6 @@ Card* findCardByColorValue (char color, int value, Stack *stack_array)
   }
   return NULL;
 }
-/*
-int moveCardOld(Stack *from_stack, Stack *to_stack)
-{
-  Card *moving_card = from_stack->top_card;
-  from_stack->top_card = moving_card->next;
-  from_stack->top_card->previous = NULL;
-  if(from_stack->top_card == NULL)
-  {
-    from_stack->bottom_card = NULL;
-  }
-  addCardToStackTop(moving_card, to_stack);
-  return 0;
-}*/
 
 int moveCard(Card *moving_card, Stack *to_stack)
 {
@@ -257,6 +250,8 @@ Card* createNewCard(char color, int value, Stack *stack)
   new_card->color = color;
   new_card->value = value;
   new_card->stack = stack;
+  new_card->next = NULL;
+  new_card->previous = NULL;
   return new_card;
 }
 
