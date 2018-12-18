@@ -1,11 +1,13 @@
 //TODO:
-//  - config einlesen und überprüfen
+//  - config einlesen und überprüfen CHECK
 //  - Fehlerverwaltung
 //      - out of memory
 //      - invalid file
 //      - invalid command
-//  - Spielfeld - Generierung
 //  - Initaler Spielstart
+//        - Erstes Kartenausteilen CHECK
+//        - Spielfedgenerierung CHECK
+//        - Userinput
 //  - Usereingaben einlesen und verarbeiten
 //  - Spielmechaniken implementieren
 //  - help implementieren
@@ -53,11 +55,11 @@ typedef enum _ReturnState_
 ReturnState readInitFile(const char *file, Stack *draw_stack);
 int initStackArray();
 int moveCard(Stack *from_stack, Stack *to_stack);
-int initialHandOut();
+int initialHandOut(Stack *stack_array);
 
 ReturnState printErrorMessage(ReturnState return_value);
 int printStack(Stack *stack);
-int printMatchfield();
+int printMatchfield(Stack *stack_array);
 
 int main(int argc, char* argv[]) {
 
@@ -68,8 +70,7 @@ int main(int argc, char* argv[]) {
                           {NULL, NULL},
                           {NULL, NULL},
                           {NULL, NULL}};
-//  initializeStacks();
-//  initStackArray();
+
   printf("argv: %s\n", argv[1]);
   ReturnState return_value = readInitFile(argv[1], &(stack_array[DRAW_STACK]));
 
@@ -78,9 +79,9 @@ int main(int argc, char* argv[]) {
     return printErrorMessage(return_value);
   }
 
-  initialHandOut(&stack_array);
+  initialHandOut(stack_array);
   //printStack(&stack_array[DRAW_STACK]);
-  printMatchfield(&stack_array);
+  printMatchfield(stack_array);
 
  // while(exit_status)
   //{
@@ -89,17 +90,6 @@ int main(int argc, char* argv[]) {
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
 }
-/*
-int initStackArray(Stack *stack_array)
-{
-  for(int stack_number = 0; stack_number < MAXSTACK; stack_number++)
-  {
-    Stack act_stack = *(stack_array + stack_number);
-    act_stack.top_card = NULL;
-    act_stack.bottom_card = NULL;
-  }
-  return 0;
-}*/
 
 ReturnState printErrorMessage(ReturnState return_value)
 {
@@ -174,6 +164,59 @@ ReturnState checkCard (char color, int value)
   ReturnState returnValue = (++(initialized_cards[value - 1]) == 1) ? OK : INVALID_CONFIG_FILE;
   return returnValue;
 }
+int getValueAsInt(char current_character, FILE *fp)
+{
+  int current_value;
+  switch(current_character)
+  {
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      current_value = current_character - '0';
+      break;
+    case 'A':
+      current_value = 1;
+      break;
+    case 'J':
+      current_value = 11;
+      break;
+    case 'Q':
+      current_value = 12;
+      break;
+    case 'K':
+      current_value = 13;
+      break;
+    case '1':
+      current_character = fgetc(fp);
+      if(current_character == '0')
+      {
+        current_value = 10;
+      }
+      else
+      {
+        return INVALID_CONFIG_FILE;
+      }
+      break;
+    default:
+      return INVALID_CONFIG_FILE;
+  }
+  return current_value;
+}
+
+Card* createNewCard(char color, int value)
+{
+  Card *new_card;
+  new_card = malloc(sizeof(Card));
+  new_card->color = color;
+  new_card->value = value;
+  return new_card;
+}
+
 ReturnState readInitFile(const char *path, Stack *stack)
 {
   FILE *fp = fopen(path, "r");
@@ -187,21 +230,16 @@ ReturnState readInitFile(const char *path, Stack *stack)
   int current_value;
   int status = 0;
   int card_count = 0;
-  while(1)
+  while(!feof(fp))
   {
-    if(feof(fp))
-    {
-      ReturnState return_value = (card_count == 26) ? OK : INVALID_CONFIG_FILE;
-      return return_value;
-    }
     int current_character = fgetc(fp);
-    printf("current_character: %i = %c, status: %i\n", current_character, current_character, status);
+    //sprintf("current_character: %i = %c, status: %i\n", current_character, current_character, status);
     if(current_character == ' ' || current_character == 10 || current_character == 13)
     {
-      printf("continue\n");
+      //printf("continue\n");
       continue;
     }
-    printf("current_character: %c post continue\n", current_character);
+    //printf("current_character: %c post continue\n", current_character);
     switch(status)
     {
       case 0:
@@ -260,44 +298,7 @@ ReturnState readInitFile(const char *path, Stack *stack)
         }
         break;
       case 7:
-        switch(current_character)
-        {
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
-            current_value = current_character - '0';
-            break;
-          case 'A':
-            current_value = 1;
-            break;
-          case 'J':
-            current_value = 11;
-            break;
-          case 'Q':
-            current_value = 12;
-            break;
-          case 'K':
-            current_value = 13;
-            break;
-          case '1':
-            current_character = fgetc(fp);
-            if(current_character == '0')
-            {
-              current_value = 10;
-            }
-            else
-            {
-              return INVALID_CONFIG_FILE;
-            }
-            break;
-          default:
-            return INVALID_CONFIG_FILE;
-        }
+        current_value = getValueAsInt(current_character, fp);
         ReturnState check_card_return = checkCard(current_color, current_value);
         if(check_card_return != OK)
         {
@@ -305,10 +306,7 @@ ReturnState readInitFile(const char *path, Stack *stack)
         }
         card_count++;
         //printf("color: %c, value: %i\n",current_color, current_value);
-        Card *new_card;
-        new_card = malloc(sizeof(Card));
-        new_card->color = current_color;
-        new_card->value = current_value;
+        Card *new_card = createNewCard(current_color, current_value);
         addCardToStackTop(new_card, stack);
         status = 0;
         break;
@@ -318,7 +316,8 @@ ReturnState readInitFile(const char *path, Stack *stack)
 
     }
   }
-
+  ReturnState return_value = (card_count == 26) ? OK : INVALID_CONFIG_FILE;
+  return return_value;
 }
 int printStack(Stack *stack)
 {
@@ -329,6 +328,35 @@ int printStack(Stack *stack)
     actual_card = actual_card->previous;
   }
   return 0;
+}
+
+char* getValueAsString(int value)
+{
+  char current_value_to_s[3] = "\0\0\0";
+  switch (value)
+  {
+    case 1:
+      strcpy(current_value_to_s, "A ");
+      break;
+    case 10:
+      strcpy(current_value_to_s, "10");
+      break;
+    case 11:
+      strcpy(current_value_to_s, "J ");
+      break;
+    case 12:
+      strcpy(current_value_to_s, "Q ");
+      break;
+    case 13:
+      strcpy(current_value_to_s, "K ");
+      break;
+    default:
+      current_value_to_s[0] = '0' + value;
+      current_value_to_s[1] = ' ';
+      current_value_to_s[2] = '\0';
+      break;
+  }
+  return current_value_to_s;
 }
 
 int printMatchfield (Stack *stack_array)
@@ -350,7 +378,8 @@ int printMatchfield (Stack *stack_array)
       int current_value;
       char current_value_to_s[3] = "\0\0\0";
       //printf("current_col: %i", current_col);
-      (current_col != (MAXSTACK - 1)) ? strcpy(current_col_end, " | ") : strcpy(current_col_end, "\0\0\0\0");
+      (current_col != (MAXSTACK - 1)) ? strcpy(current_col_end, " | ")
+        : strcpy(current_col_end, "\0\0\0\0");
       Card* current_card = *(current_pointer + current_col);
       if(current_card == NULL)
       {
@@ -366,30 +395,7 @@ int printMatchfield (Stack *stack_array)
       {
         current_color = current_card->color;
         current_value = current_card->value;
-        switch (current_value)
-        {
-          case 1:
-            strcpy(current_value_to_s, "A ");
-            break;
-          case 10:
-            strcpy(current_value_to_s, "10");
-            break;
-          case 11:
-            strcpy(current_value_to_s, "J ");
-            break;
-          case 12:
-            strcpy(current_value_to_s, "Q ");
-            break;
-          case 13:
-            strcpy(current_value_to_s, "K ");
-            break;
-          default:
-            current_value_to_s[0] = '0' + current_value;
-            current_value_to_s[1] = ' ';
-            current_value_to_s[2] = '\0';
-            break;
-        }
-
+        current_value_to_s = getValueAsString(current_value);
       }
       printf("%c%s%s", current_color, current_value_to_s, current_col_end);
       current_pointer[current_col] = (current_card != NULL)
