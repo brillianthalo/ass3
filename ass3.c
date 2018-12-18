@@ -40,79 +40,80 @@ typedef struct _Stack_ {
   Card *top_card;
   Card *bottom_card;
 } Stack;
-typedef enum _ReturnValue_
+typedef enum _ReturnState_
 {
-  EVERYTHING_OK = 0,
-  INVALID_ARG_COUNT = -1,
-  INVALID_FILE = -2,
-} ReturnValue;
+  OK = 0,
+  INVALID_ARGS = -1,
+  INVALID_CONFIG_FILE = -2,
+} ReturnState;
 
-Stack stack_array[7] = {{NULL, NULL},
-                        {NULL, NULL},
-                        {NULL, NULL},
-                        {NULL, NULL},
-                        {NULL, NULL},
-                        {NULL, NULL},
-                        {NULL, NULL}};
 
-FILE *fp;
-//variale initiation
-int initialized_cards[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
 //forward function declaration
-ReturnValue readInitFile(const char *file, Stack draw_stack);
+ReturnState readInitFile(const char *file, Stack *draw_stack);
 int initStackArray();
 int moveCard(Stack *from_stack, Stack *to_stack);
 int initialHandOut();
 
-ReturnValue printErrorMessage(ReturnValue return_value);
+ReturnState printErrorMessage(ReturnState return_value);
 int printStack(Stack *stack);
 int printMatchfield();
 
 int main(int argc, char* argv[]) {
 
-
+  Stack stack_array[7] = {{NULL, NULL},
+                          {NULL, NULL},
+                          {NULL, NULL},
+                          {NULL, NULL},
+                          {NULL, NULL},
+                          {NULL, NULL},
+                          {NULL, NULL}};
 //  initializeStacks();
 //  initStackArray();
-  //printf("argv: %s\n", argv[1]);
-  ReturnValue return_value = readInitFile(argv[1], stack_array[DRAW_STACK]);
+  printf("argv: %s\n", argv[1]);
+  ReturnState return_value = readInitFile(argv[1], &(stack_array[DRAW_STACK]));
 
-  if(return_value != EVERYTHING_OK)
+  if(return_value != OK)
   {
     return printErrorMessage(return_value);
   }
 
-  initialHandOut();
-
+  initialHandOut(&stack_array);
   //printStack(&stack_array[DRAW_STACK]);
-  printMatchfield();
+  printMatchfield(&stack_array);
+
+ // while(exit_status)
+  //{
+  //  fgets()
+  //}
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
 }
-
-int initStackArray()
+/*
+int initStackArray(Stack *stack_array)
 {
   for(int stack_number = 0; stack_number < MAXSTACK; stack_number++)
   {
-    stack_array[stack_number].top_card = NULL;
-    stack_array[stack_number].bottom_card = NULL;
+    Stack act_stack = *(stack_array + stack_number);
+    act_stack.top_card = NULL;
+    act_stack.bottom_card = NULL;
   }
   return 0;
-}
+}*/
 
-ReturnValue printErrorMessage(ReturnValue return_value)
+ReturnState printErrorMessage(ReturnState return_value)
 {
   switch(return_value)
   {
-    case INVALID_ARG_COUNT:
+    case INVALID_ARGS:
       printf("[ERR] Wrong number of parameters. Usage ./ass1 <config-file>\n");
       break;
-    case INVALID_FILE:
+    case INVALID_CONFIG_FILE:
       printf("[ERR] Config-File is invalid.\n");
       break;
 
-    case EVERYTHING_OK:
-      //left blank intentionally
+    case OK:
+      //left blank because nothing should happen
       break;
   }
   return return_value;
@@ -132,6 +133,7 @@ int addCardToStackTop(Card *new_card, Stack *card_stack)
   {
     card_stack->bottom_card = new_card;
   }
+  return 0;
 }
 
 int moveCard(Stack *from_stack, Stack *to_stack)
@@ -141,56 +143,65 @@ int moveCard(Stack *from_stack, Stack *to_stack)
   from_stack->top_card->previous = NULL;
   if(from_stack->top_card == NULL)
   {
-    from_stack->bottom_card == NULL;
+    from_stack->bottom_card = NULL;
   }
   addCardToStackTop(moving_card, to_stack);
-
+  return 0;
 }
 
-int initialHandOut ()
+int initialHandOut (Stack *stack_array)
 {
   for(int offset = 0; offset < 4; offset++)
   {
     //printf("offset: %i\n", offset);
-    for(int distribute = (0 + offset); distribute < 4; distribute++)
+    for(int distribute = (1 + offset); distribute <= 4; distribute++)
     {
      // printf("distribute: %i\n", distribute);
-      moveCard(&stack_array[DRAW_STACK], &stack_array[distribute + 1]);
+      moveCard(&stack_array[DRAW_STACK], &stack_array[distribute]);
     }
   }
+  return 0;
 }
 
-ReturnValue checkCard (char color, int value)
+ReturnState checkCard (char color, int value)
 {
+  static int initialized_cards[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   if(color == 'R')
   {
     value += 13;
   }
-  ReturnValue returnValue = (++(initialized_cards[value - 1]) == 1) ? EVERYTHING_OK : INVALID_FILE;
+  ReturnState returnValue = (++(initialized_cards[value - 1]) == 1) ? OK : INVALID_CONFIG_FILE;
   return returnValue;
 }
-ReturnValue readInitFile(const char *path, Stack draw_stack)
+ReturnState readInitFile(const char *path, Stack *stack)
 {
-  fp = fopen(path, "r");
+  FILE *fp = fopen(path, "r");
   if(fp == NULL)
   {
-    //printf("file is NULL\n");
-    return INVALID_FILE;
+    printf("file is NULL\n");
+    return INVALID_CONFIG_FILE;
   }
   //("readInitFile\n");
   char current_color;
   int current_value;
   int status = 0;
   int card_count = 0;
-  while(!feof(fp))
+  while(1)
   {
-    int current_character = fgetc(fp);
-    //printf("current_character: %c, status: %i\n", current_character, status);
-    if(current_character == ' ' || current_character == '\n')
+    if(feof(fp))
     {
-      //printf("continue\n");
+      ReturnState return_value = (card_count == 26) ? OK : INVALID_CONFIG_FILE;
+      return return_value;
+    }
+    int current_character = fgetc(fp);
+    printf("current_character: %i = %c, status: %i\n", current_character, current_character, status);
+    if(current_character == ' ' || current_character == 10 || current_character == 13)
+    {
+      printf("continue\n");
       continue;
     }
+    printf("current_character: %c post continue\n", current_character);
     switch(status)
     {
       case 0:
@@ -281,14 +292,14 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
             }
             else
             {
-              return INVALID_FILE;
+              return INVALID_CONFIG_FILE;
             }
             break;
           default:
-            return INVALID_FILE;
+            return INVALID_CONFIG_FILE;
         }
-        ReturnValue check_card_return = checkCard(current_color, current_value);
-        if(check_card_return != EVERYTHING_OK)
+        ReturnState check_card_return = checkCard(current_color, current_value);
+        if(check_card_return != OK)
         {
           return check_card_return;
         }
@@ -298,17 +309,16 @@ ReturnValue readInitFile(const char *path, Stack draw_stack)
         new_card = malloc(sizeof(Card));
         new_card->color = current_color;
         new_card->value = current_value;
-        addCardToStackTop(new_card, &stack_array[DRAW_STACK]);
+        addCardToStackTop(new_card, stack);
         status = 0;
         break;
       case -1:
       default:
-        return INVALID_FILE;
+        return INVALID_CONFIG_FILE;
 
     }
   }
-  ReturnValue return_value = (card_count == 26) ? EVERYTHING_OK : INVALID_FILE;
-  return return_value;
+
 }
 int printStack(Stack *stack)
 {
@@ -321,14 +331,14 @@ int printStack(Stack *stack)
   return 0;
 }
 
-int printMatchfield ()
+int printMatchfield (Stack *stack_array)
 {
   printf("0   | 1   | 2   | 3   | 4   | DEP | DEP\n");
   printf("---------------------------------------\n");
   Card* current_pointer[MAXSTACK];
   for(int pointer_copy = 0; pointer_copy < MAXSTACK; pointer_copy++)
   {
-    current_pointer[pointer_copy] = (stack_array + pointer_copy)->bottom_card;
+    *(current_pointer + pointer_copy) = (stack_array + pointer_copy)->bottom_card;
   }
   for(int current_matchfield_row = 0; current_matchfield_row < MATCHFIELDHEIGHT;
     current_matchfield_row++)
@@ -341,7 +351,7 @@ int printMatchfield ()
       char current_value_to_s[3] = "\0\0\0";
       //printf("current_col: %i", current_col);
       (current_col != (MAXSTACK - 1)) ? strcpy(current_col_end, " | ") : strcpy(current_col_end, "\0\0\0\0");
-      Card* current_card = current_pointer[current_col];
+      Card* current_card = *(current_pointer + current_col);
       if(current_card == NULL)
       {
         current_color = ' ';
@@ -356,7 +366,6 @@ int printMatchfield ()
       {
         current_color = current_card->color;
         current_value = current_card->value;
-        current_value_to_s[3];
         switch (current_value)
         {
           case 1:
@@ -389,4 +398,5 @@ int printMatchfield ()
     }
     printf("\n");
   }
+  return 0;
 }
