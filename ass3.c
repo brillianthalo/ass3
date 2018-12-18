@@ -330,9 +330,8 @@ int printStack(Stack *stack)
   return 0;
 }
 
-char* getValueAsString(int value)
+int getValueAsString(int value, char *current_value_to_s)
 {
-  char current_value_to_s[3] = "\0\0\0";
   switch (value)
   {
     case 1:
@@ -356,7 +355,7 @@ char* getValueAsString(int value)
       current_value_to_s[2] = '\0';
       break;
   }
-  return current_value_to_s;
+  return 0;
 }
 
 int printMatchfield (Stack *stack_array)
@@ -395,7 +394,7 @@ int printMatchfield (Stack *stack_array)
       {
         current_color = current_card->color;
         current_value = current_card->value;
-        current_value_to_s = getValueAsString(current_value);
+        getValueAsString(current_value, current_value_to_s);
       }
       printf("%c%s%s", current_color, current_value_to_s, current_col_end);
       current_pointer[current_col] = (current_card != NULL)
