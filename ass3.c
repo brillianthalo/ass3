@@ -53,16 +53,16 @@ typedef enum _ReturnState_
 
 
 //forward function declaration
-ReturnState readInitFile(const char *file, Stack *draw_stack);
+ReturnState readInitFile(const char *path, Stack *draw_stack);
 int initStackArray();
-int moveCard(Card *moving_card, Stack *to_stack);
+int movePile(Stack *moving_pile, Stack *to_stack);
 int initialHandOut(Stack *stack_array);
 
 ReturnState printErrorMessage(ReturnState return_value);
 //int printStack(Stack *stack);
 int printMatchfield(Stack *stack_array);
 int printHelp();
-Card* findCardByColorValue(char color, int value, Stack *stack_array);
+Stack* findCardPileByColorValue(char color, int value, Stack *stack_array);
 
 int main(int argc, char* argv[]) {
 
@@ -85,8 +85,15 @@ int main(int argc, char* argv[]) {
   initialHandOut(stack_array);
   //printStack(&stack_array[DRAW_STACK]);
   printMatchfield(stack_array);
-  Card* test_move = findCardByColorValue('B', 9, stack_array);
-  moveCard(test_move, stack_array + GAME_STACK_2);
+  Stack* test_move = findCardPileByColorValue('B', 10, stack_array);
+  if(test_move == NULL)
+  {
+    printf("not valid move");
+  }
+  else
+  {
+    movePile(test_move, stack_array + GAME_STACK_2);
+  }
   printf("\nhard coded moving from B9 to GAMESTACK 2\n\n");
   printMatchfield(stack_array);
  // while(exit_status)
@@ -121,38 +128,52 @@ ReturnState printErrorMessage(ReturnState return_value)
   return return_value;
 }
 
-int addCardToStackTop(Card *new_card, Stack *card_stack)
+Stack* makeSingleCardToPile(Card *card)
 {
+  Stack *pile = malloc(sizeof(Stack));
+  pile->bottom_card = card;
+  pile->top_card = card;
+  return pile;
+}
 
+int addPileToStackTop(Stack *add_pile, Stack *card_stack)
+{
+  Card *new_card = add_pile->bottom_card;
   new_card->next = card_stack->top_card;
   if(card_stack->top_card != NULL)
   {
     card_stack->top_card->previous = new_card;
   }
-  card_stack->top_card = new_card;
+  card_stack->top_card = add_pile->top_card;
   if(card_stack->bottom_card == NULL)
   {
     card_stack->bottom_card = new_card;
   }
+  free(add_pile);
   return 0;
 }
 
-Card* findCardByColorValue (char color, int value, Stack *stack_array)
+Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
 {
-  Card *current_card = (stack_array + DRAW_STACK)->top_card;
+  Stack *moving_pile = malloc(sizeof(Stack));
+  moving_pile->top_card = (stack_array + DRAW_STACK)->top_card;
+  moving_pile->top_card = moving_pile->bottom_card;
+  Card* current_card = moving_pile->bottom_card;
   if (current_card->color == color && current_card->value == value)
   {
-    return current_card;
+    return moving_pile;
   }
   for(int current_stack_number = 1; current_stack_number < (MAXSTACK - 2);
     current_stack_number++)
   {
+    moving_pile->top_card = (stack_array + current_stack_number)->top_card;
     current_card = (stack_array + current_stack_number)->top_card;
     while(current_card != NULL)
     {
       if(current_card->color == color && current_card->value == value)
       {
-        return current_card;
+        moving_pile->bottom_card = current_card;
+        return moving_pile;
       }
       current_card = current_card->next;
     }
@@ -160,8 +181,9 @@ Card* findCardByColorValue (char color, int value, Stack *stack_array)
   return NULL;
 }
 
-int moveCard(Card *moving_card, Stack *to_stack)
+int movePile(Stack *moving_pile, Stack *to_stack)
 {
+  Card* moving_card = moving_pile->bottom_card;
   moving_card->stack->top_card = moving_card->next;
   if(moving_card->next != NULL)
   {
@@ -171,7 +193,7 @@ int moveCard(Card *moving_card, Stack *to_stack)
   {
     moving_card->stack->bottom_card = NULL;
   }
-  addCardToStackTop(moving_card, to_stack);
+  addPileToStackTop(moving_pile, to_stack);
   return 0;
 }
 
@@ -183,7 +205,8 @@ int initialHandOut (Stack *stack_array)
     for(int distribute = (1 + offset); distribute <= 4; distribute++)
     {
      // printf("distribute: %i\n", distribute);
-      moveCard((stack_array + DRAW_STACK)->top_card, &stack_array[distribute]);
+      Stack *move_pile = makeSingleCardToPile((stack_array + DRAW_STACK)->top_card);
+      movePile(move_pile, &stack_array[distribute]);
     }
   }
   return 0;
@@ -346,7 +369,8 @@ ReturnState readInitFile(const char *path, Stack *stack)
         card_count++;
         //printf("color: %c, value: %i\n",current_color, current_value);
         Card *new_card = createNewCard(current_color, current_value, stack);
-        addCardToStackTop(new_card, stack);
+        Stack *new_pile = makeSingleCardToPile(new_card);
+        addPileToStackTop(new_pile, stack);
         status = 0;
         break;
       case -1:
