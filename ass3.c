@@ -83,9 +83,8 @@ int main(int argc, char* argv[]) {
   }
 
   initialHandOut(stack_array);
-  //printStack(&stack_array[DRAW_STACK]);
   printMatchfield(stack_array);
-  Stack* test_move = findCardPileByColorValue('B', 10, stack_array);
+  Stack* test_move = findCardPileByColorValue('B', 9, stack_array);
   if(test_move == NULL)
   {
     printf("not valid move");
@@ -93,8 +92,9 @@ int main(int argc, char* argv[]) {
   else
   {
     movePile(test_move, stack_array + GAME_STACK_2);
+    printf("\nhard coded moving from B9 to GAMESTACK 2\n\n");
   }
-  printf("\nhard coded moving from B9 to GAMESTACK 2\n\n");
+
   printMatchfield(stack_array);
  // while(exit_status)
   //{
