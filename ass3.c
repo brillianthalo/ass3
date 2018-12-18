@@ -87,6 +87,7 @@ int main(int argc, char* argv[]) {
   printMatchfield(stack_array);
   Card* test_move = findCardByColorValue('B', 9, stack_array);
   moveCard(test_move, stack_array + GAME_STACK_2);
+  printf("\nhard coded moving from B9 to GAMESTACK 2\n\n");
   printMatchfield(stack_array);
  // while(exit_status)
   //{
