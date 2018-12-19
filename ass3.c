@@ -10,7 +10,7 @@
 //        - Userinput
 //  - Usereingaben einlesen und verarbeiten JAKOB
 //  - Spielmechaniken implementieren JAKOB
-//  - help implementieren
+//  - help implementieren CHECK
 //  - exit UND EOF implementieren
 //  - win- und lose-condition implementieren
 //  - DOKUMENTATION
@@ -101,7 +101,18 @@ int main(int argc, char* argv[]) {
   else
   {
     movePile(test_move, stack_array + GAME_STACK_2);
-    printf("\nhard coded moving from B9 to GAMESTACK 2\n\n");
+    printf("\nhard coded moving of B9 to GAMESTACK 2\n\n");
+  }
+  printMatchfield(stack_array);
+  test_move = findCardPileByColorValue('R', 6, stack_array);
+  if(test_move == NULL)
+  {
+    printf("not valid move");
+  }
+  else
+  {
+    movePile(test_move, stack_array + GAME_STACK_4);
+    printf("\nhard coded moving of R6 to GAMESTACK 4\n\n");
   }
   printMatchfield(stack_array);
   printHelp();
@@ -192,6 +203,11 @@ int addPileToStackTop(Stack *add_pile, Stack *card_stack)
   if(card_stack->bottom_card == NULL)
   {
     card_stack->bottom_card = new_card;
+  }
+  while(new_card != NULL)
+  {
+    new_card->stack = card_stack;
+    new_card = new_card->previous;
   }
   free(add_pile);
   return 0;
