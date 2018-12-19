@@ -13,6 +13,7 @@
 //  - help implementieren
 //  - exit UND EOF implementieren
 //  - win- und lose-condition implementieren
+//  - DOKUMENTATION
 //
 
 
@@ -46,15 +47,19 @@ typedef struct _Stack_ {
 typedef enum _ReturnState_
 {
   OK = 0,
-  INVALID_ARGS = -1,
-  INVALID_CONFIG_FILE = -2,
+  INVALID_ARGS = 1,
+  OUT_OF_MEMORY = 2,
+  INVALID_CONFIG_FILE = 3,
 } ReturnState;
-
+typedef enum _InfoState_ {
+  VALID_COMMAND = 0,
+  INVALID_COMMAND = -1,
+  INVALID_MOVE = -2
+} InfoState;
 
 
 //forward function declaration
 ReturnState readInitFile(const char *path, Stack *draw_stack);
-int initStackArray();
 int movePile(Stack *moving_pile, Stack *to_stack);
 int initialHandOut(Stack *stack_array);
 
@@ -63,6 +68,10 @@ ReturnState printErrorMessage(ReturnState return_value);
 int printMatchfield(Stack *stack_array);
 int printHelp();
 Stack* findCardPileByColorValue(char color, int value, Stack *stack_array);
+InfoState printInfoMessage(InfoState info_message);
+int printHelp();
+int freeAllCardMems(Stack *stack_array);
+int exitGame(Stack *stack_array);
 
 int main(int argc, char* argv[]) {
 
@@ -94,13 +103,29 @@ int main(int argc, char* argv[]) {
     movePile(test_move, stack_array + GAME_STACK_2);
     printf("\nhard coded moving from B9 to GAMESTACK 2\n\n");
   }
-
   printMatchfield(stack_array);
+  printHelp();
  // while(exit_status)
   //{
   //  fgets()
   //}
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
+  return 0;
+}
+
+int freeAllCardMems(Stack *stack_array)
+{
+  for(int current_stack = 0; current_stack < MAXSTACK; current_stack++)
+  {
+    Card *head_card = (stack_array + current_stack)->top_card;
+    Card *tmp_card;
+    while(head_card != NULL)
+    {
+      tmp_card = head_card;
+      head_card = head_card->next;
+      free(tmp_card);
+    }
+  }
   return 0;
 }
 
@@ -115,17 +140,36 @@ ReturnState printErrorMessage(ReturnState return_value)
   switch(return_value)
   {
     case INVALID_ARGS:
-      printf("[ERR] Wrong number of parameters. Usage ./ass1 <config-file>\n");
+      printf("[ERR] Usage ./ass3 [file-name]\n");
       break;
     case INVALID_CONFIG_FILE:
-      printf("[ERR] Config-File is invalid.\n");
+      printf("[ERR] Invalid File!\n");
       break;
-
+    case OUT_OF_MEMORY:
+      printf("[ERR] Out of memory.\n");
+      break;
     case OK:
       //left blank because nothing should happen
       break;
   }
   return return_value;
+}
+
+InfoState printInfoMessage(InfoState info_message)
+{
+  switch(info_message)
+  {
+    case INVALID_COMMAND:
+      printf("[INFO] Invalid command!\n");
+      break;
+    case INVALID_MOVE:
+      printf("[INFO] Invalid move command!\n");
+      break;
+    case VALID_COMMAND:
+      //left blank because nothing should happen
+      break;
+  }
+  return info_message;
 }
 
 Stack* makeSingleCardToPile(Card *card)
@@ -156,8 +200,12 @@ int addPileToStackTop(Stack *add_pile, Stack *card_stack)
 Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
 {
   Stack *moving_pile = malloc(sizeof(Stack));
+  if(moving_pile == NULL)
+  {
+    return moving_pile;
+  }
   moving_pile->top_card = (stack_array + DRAW_STACK)->top_card;
-  moving_pile->top_card = moving_pile->bottom_card;
+  moving_pile->bottom_card = moving_pile->top_card;
   Card* current_card = moving_pile->bottom_card;
   if (current_card->color == color && current_card->value == value)
   {
@@ -435,10 +483,10 @@ int printMatchfield (Stack *stack_array)
   {
     for(int current_col = 0; current_col < MAXSTACK; current_col++)
     {
-      char current_col_end[4] = "\0\0\0\0";
+      char current_col_end[4] = "\0\0\0";
       char current_color;
       int current_value;
-      char current_value_to_s[3] = "\0\0\0";
+      char current_value_to_s[3] = "\0\0";
       //printf("current_col: %i", current_col);
       (current_col != (MAXSTACK - 1)) ? strcpy(current_col_end, " | ")
         : strcpy(current_col_end, "\0\0\0\0");
