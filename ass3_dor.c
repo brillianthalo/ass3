@@ -73,6 +73,7 @@ InfoState printInfoMessage(InfoState info_message);
 int printHelp();
 int freeAllCardMems(Stack *stack_array);
 int exitGame(Stack *stack_array);
+int getValueAsInt(char current_character, FILE *fp);
 
 int main(int argc, char* argv[]) {
   int exit_status = 1;
