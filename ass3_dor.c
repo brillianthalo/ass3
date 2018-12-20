@@ -74,6 +74,7 @@ int freeAllCardMems(Stack *stack_array);
 int exitGame(Stack *stack_array);
 
 int main(int argc, char* argv[]) {
+  int exit_status = 1
   char input[15] = malloc(sizeof());
   char input_comm[4]
   char input_color
