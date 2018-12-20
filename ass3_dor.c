@@ -184,29 +184,16 @@ int main(int argc, char* argv[]) {
         printInfoMessage(-1);
         continue;
       }
-      if((input_value = getValueAsInt(*input, input + 1) != -1)
+       if(input[0] == '1' && input[1] == '0')
       {
-        if(input_value == 10)
-        {
-          input += 2;
-        }
-        else
-        {
-          input += 1;
-        }
-      }
-        
-      
-      /* if(input[0] == '1' && input[1] == '0')
-      {
-        strcpy(input_value, "10");
+        input_value = 10;
         input += 2;
       }
-      else if((getValueAsInt(*input)) != -1)
+      else if((input_value = getValueAsInt(*input)) != -1)
       {
         input_value = *input;
         input += 1 
-      } */
+      } 
       else
       {
         printInfoMessage(-1);
