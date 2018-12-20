@@ -74,7 +74,7 @@ int freeAllCardMems(Stack *stack_array);
 int exitGame(Stack *stack_array);
 
 int main(int argc, char* argv[]) {
-  char input[15]
+  char input[15] = malloc(sizeof());
   char input_comm[4]
   char input_color
   char input_value[2]
@@ -130,8 +130,23 @@ int main(int argc, char* argv[]) {
     printf("esp> ");
     fgets(input, 15, stdin);
     lower_string(input)
-    strncat(input_comm, input, 4);
+    char *input = calloc(19);
+    unsigned int current_input_size = 19
+    if(input != NULL)
+    {
+      unsigned int current_input_char = EOF;
+      unsigned int current_need_size = 0;
+    while((current_input_char = getchar()) != '\n' && current_input_char != EOF)
+      {
+        input[current_need_size++] = current_input_char
+        if(current_need_size == current_input_size)
+        {
+          input = realloc(input, ++current_input_size)
+        }
+      }
+    }
     
+    strncat(input_comm, input, 4);    
     switch(input_comm)
     {
       case "help":
@@ -149,6 +164,7 @@ int main(int argc, char* argv[]) {
           input_stack = *(input + 13);
         }
         movePile()
+        free(input)
       case "exit":
 /*         free(pile);
         free(moving_pile);
