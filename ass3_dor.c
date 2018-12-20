@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
         {
           continue
         }
-        input[current_need_size++] = current_input_char;
+        input[current_need_size++] = tolower(current_input_char);
         if(current_need_size == current_input_size)
         {
           input = realloc(input, ++current_input_size);
