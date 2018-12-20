@@ -149,15 +149,15 @@ int main(int argc, char* argv[]) {
       }
     }    
     strncat(input_comm, input, 4);   
-    if(input_comm == "help")
+    if(strcmp(input_comm, "help"))
     {
       printHelp();
     }
-    else if(input_comm == "move")
+    else if(strcmp(input_comm, "move"))
     {
-      if(*input == 'R')
+      if(strcmp(*input, 'R'))
       {
-        if(strncat(input_color, input, 3) == "RED")
+        if(strcmp(strncat(input_color, input, 3), "RED"))
         {
           input += 3;
         }
@@ -167,9 +167,9 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
-      else if(*input == 'B')
+      else if(strcmp(*input, 'B'))
       {
-        if(strncat(input_color, input, 5) == "BLACK")
+        if(strcmp(strncat(input_color, input, 5), "BLACK"))
         {
           input += 5;
         }
@@ -184,10 +184,10 @@ int main(int argc, char* argv[]) {
         printInfoMessage(-1);
         continue;
       }
-      if(input[0] == '1' && input[1] == '0')
+      if(strcmp(input[0], '1') && strcmp(input[1], '0'))
       {
-        input_value = "10";
-        input += 2
+        strcpy(input_value, "10");
+        input += 2;
       }
       else if(getValueAsInt(*input)
       {
@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
       movePile(pile_to_move,input_stack);
       free(input)
     }
-    else if(input_comm == "exit")
+    else if(strcmp(input_comm, "exit"))
     {
       freeAllCardMems()
       exit_status = 0
