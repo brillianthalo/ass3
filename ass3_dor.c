@@ -124,7 +124,6 @@ int main(int argc, char* argv[]) {
     printf("\nhard coded moving of R6 to GAMESTACK 4\n\n");
   }
   printMatchfield(stack_array);
-  printHelp();
   while(exit_status)
   {
     printf("esp> ");
@@ -150,32 +149,35 @@ int main(int argc, char* argv[]) {
     }
     lower_string(input);
     
-    strncat(input_comm, input, 4);    
-    switch(input_comm)
+    strncat(input_comm, input, 4);   
+    if(input_comm == "help")
     {
-      case "help":
-        printHelp()
-        break;
-      case "move":
-        input_color = *(input + 5);
-        input_value = *(input + 7);
-        if(input_value[1] = ' ')
-        {
-          input_stack = *(input + 12);
-        }
-        else
-        {
-          input_stack = *(input + 13);
-        }
-        movePile()
-        free(input)
-      case "exit":
-/*         free(pile);
-        free(moving_pile);
-        free(new_card); */
-      default:
-        printf("[INFO] Invalid command!\n");
+      printHelp()
     }
+    else if(input_comm == "move")
+    {
+      input_color = *(input + 5);
+      input_value = *(input + 7);
+      if(input_value[1] = ' ')
+      {
+        input_stack = *(input + 12);
+      }
+      else
+      {
+        input_stack = *(input + 13);
+      }
+      movePile()
+      free(input)
+    }
+    else if(input_comm == "exit")
+    {
+      freeAllCardMems()
+      exit_status = 0
+    }
+    else
+    {
+        printInfoMessage(-1)
+    }  
   }
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
