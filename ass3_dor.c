@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
         {
           continue;
         }
-        input[current_need_size++] = tolower(current_input_char);
+        input[current_need_size++] = toupper(current_input_char);
         if(current_need_size == current_input_size)
         {
           input = realloc(input, ++current_input_size);
@@ -155,17 +155,60 @@ int main(int argc, char* argv[]) {
     }
     else if(input_comm == "move")
     {
-      input_color = input + 5;
-      input_value = input + 7;
-      if(input_value[1] = ' ')
+      if(*input == 'R')
       {
-        input_stack = input + 12;
+        if(strncat(input_color, input, 3) == "RED")
+        {
+          input += 3;
+        }
+        else
+        {
+          printInfoMessage(-1)
+          continue;
+        }
+      }
+      else if(*input == 'B')
+      {
+        if(strncat(input_color, input, 5) == "BLACK")
+        {
+          input += 5;
+        }
+        else
+        {
+          printInfoMessage(-1);
+          continue;
+        }
       }
       else
       {
-        input_stack = input + 13;
+        printInfoMessage(-1);
+        continue;
       }
-      movePile()
+      if(input[0] == '1' && input[1] == '0')
+      {
+        input_value = "10";
+        input += 2
+      }
+      else if(getValueAsInt(*input)
+      {
+        input_value = *input;
+        input += 1 
+      }
+      else
+      {
+        printInfoMessage(-1);
+        continue;
+      }
+      if(input[2] < 7)
+      {
+        input_stack = input[2]
+      }
+      else
+      {
+        printInfoMessage(-1);
+      }
+      pile_to_move = findCardPileByColorValue(input_color[0],input_value);
+      movePile(pile_to_move,input_stack);
       free(input)
     }
     else if(input_comm == "exit")
