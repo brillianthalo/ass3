@@ -151,19 +151,19 @@ int main(int argc, char* argv[]) {
     strncat(input_comm, input, 4);   
     if(input_comm == "help")
     {
-      printHelp()
+      printHelp();
     }
     else if(input_comm == "move")
     {
-      input_color = *(input + 5);
-      input_value = *(input + 7);
+      input_color = input + 5;
+      input_value = input + 7;
       if(input_value[1] = ' ')
       {
-        input_stack = *(input + 12);
+        input_stack = input + 12;
       }
       else
       {
-        input_stack = *(input + 13);
+        input_stack = input + 13;
       }
       movePile()
       free(input)
