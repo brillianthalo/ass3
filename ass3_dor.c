@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
   {
     printf("esp> ");
 
-    char *input = calloc(19);
+    char *input = calloc(1,19);
     unsigned int current_input_size = 19;
     if(input != NULL)
     {
