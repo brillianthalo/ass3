@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
     }
     else if(strcmp(input_comm, "move"))
     {
-      if(strcmp(*input, 'R'))
+      if(*input == 'R'))
       {
         if(strcmp(strncat(input_color, input, 3), "RED"))
         {
@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
-      else if(strcmp(*input, 'B'))
+      else if(*input == 'B')
       {
         if(strcmp(strncat(input_color, input, 5), "BLACK"))
         {
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
         strcpy(input_value, "10");
         input += 2;
       }
-      else if(getValueAsInt(*input)
+      else if(getValueAsInt(*input))
       {
         input_value = *input;
         input += 1 
