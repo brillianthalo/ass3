@@ -74,12 +74,11 @@ int freeAllCardMems(Stack *stack_array);
 int exitGame(Stack *stack_array);
 
 int main(int argc, char* argv[]) {
-  int exit_status = 1
-  char input[15] = malloc(sizeof());
-  char input_comm[4]
-  char input_color
-  char input_value[2]
-  char input_stack
+  int exit_status = 1;
+  char input_comm[4];
+  char input_color[5];
+  char input_value[2];
+  char input_stack;
   Stack stack_array[7] = {{NULL, NULL},
                           {NULL, NULL},
                           {NULL, NULL},
