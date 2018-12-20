@@ -128,23 +128,27 @@ int main(int argc, char* argv[]) {
   while(exit_status)
   {
     printf("esp> ");
-    fgets(input, 15, stdin);
-    lower_string(input)
+
     char *input = calloc(19);
-    unsigned int current_input_size = 19
+    unsigned int current_input_size = 19;
     if(input != NULL)
     {
-      unsigned int current_input_char = EOF;
+      char current_input_char = EOF;
       unsigned int current_need_size = 0;
     while((current_input_char = getchar()) != '\n' && current_input_char != EOF)
       {
-        input[current_need_size++] = current_input_char
+        if(current_input_char == ' ')
+        {
+          continue
+        }
+        input[current_need_size++] = current_input_char;
         if(current_need_size == current_input_size)
         {
-          input = realloc(input, ++current_input_size)
+          input = realloc(input, ++current_input_size);
         }
       }
     }
+    lower_string(input);
     
     strncat(input_comm, input, 4);    
     switch(input_comm)
