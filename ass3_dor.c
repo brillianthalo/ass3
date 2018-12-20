@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
       {
         if(current_input_char == ' ')
         {
-          continue
+          continue;
         }
         input[current_need_size++] = tolower(current_input_char);
         if(current_need_size == current_input_size)
@@ -147,9 +147,7 @@ int main(int argc, char* argv[]) {
           input = realloc(input, ++current_input_size);
         }
       }
-    }
-    lower_string(input);
-    
+    }    
     strncat(input_comm, input, 4);   
     if(input_comm == "help")
     {
