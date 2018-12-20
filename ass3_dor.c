@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
   int exit_status = 1;
   char input_comm[4];
   char input_color[5];
-  char input_value[2];
+  int input_value;
   char input_stack;
   Stack stack_array[7] = {{NULL, NULL},
                           {NULL, NULL},
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
     }
     else if(strcmp(input_comm, "move"))
     {
-      if(*input == 'R'))
+      if(*input == 'R')
       {
         if(strcmp(strncat(input_color, input, 3), "RED"))
         {
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
         }
         else
         {
-          printInfoMessage(-1)
+          printInfoMessage(-1);
           continue;
         }
       }
@@ -184,16 +184,29 @@ int main(int argc, char* argv[]) {
         printInfoMessage(-1);
         continue;
       }
-      if(strcmp(input[0], '1') && strcmp(input[1], '0'))
+      if((input_value = getValueAsInt(*input, input + 1) != -1)
+      {
+        if(input_value == 10)
+        {
+          input += 2;
+        }
+        else
+        {
+          input += 1;
+        }
+      }
+        
+      
+      /* if(input[0] == '1' && input[1] == '0')
       {
         strcpy(input_value, "10");
         input += 2;
       }
-      else if(getValueAsInt(*input))
+      else if((getValueAsInt(*input)) != -1)
       {
         input_value = *input;
         input += 1 
-      }
+      } */
       else
       {
         printInfoMessage(-1);
