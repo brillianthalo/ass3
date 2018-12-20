@@ -93,10 +93,15 @@ int main(int argc, char* argv[]) {
 
   initialHandOut(stack_array);
   printMatchfield(stack_array);
-  Stack* test_move = findCardPileByColorValue('B', 9, stack_array);
+  Stack* test_move = findCardPileByColorValue('B', 10, stack_array);
   if(test_move == NULL)
   {
-    printf("not valid move");
+    printErrorMessage(OUT_OF_MEMORY);
+    return 1;
+  }
+  else if(test_move->bottom_card == NULL)
+  {
+    printInfoMessage(INVALID_MOVE);
   }
   else
   {
@@ -220,6 +225,7 @@ Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
   {
     return moving_pile;
   }
+
   moving_pile->top_card = (stack_array + DRAW_STACK)->top_card;
   moving_pile->bottom_card = moving_pile->top_card;
   Card* current_card = moving_pile->bottom_card;
@@ -242,7 +248,9 @@ Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
       current_card = current_card->next;
     }
   }
-  return NULL;
+  moving_pile->top_card = NULL;
+  moving_pile->bottom_card = NULL;
+  return moving_pile;
 }
 
 int movePile(Stack *moving_pile, Stack *to_stack)
@@ -348,7 +356,6 @@ ReturnState readInitFile(const char *path, Stack *stack)
   FILE *fp = fopen(path, "r");
   if(fp == NULL)
   {
-    printf("file is NULL\n");
     return INVALID_CONFIG_FILE;
   }
   //("readInitFile\n");
