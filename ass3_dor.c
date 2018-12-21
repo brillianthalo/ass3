@@ -70,7 +70,6 @@ int printMatchfield(Stack *stack_array);
 int printHelp();
 Stack* findCardPileByColorValue(char color, int value, Stack *stack_array);
 InfoState printInfoMessage(InfoState info_message);
-int printHelp();
 int freeAllCardMems(Stack *stack_array);
 int exitGame(Stack *stack_array);
 int getValueAsInt(char current_character);
@@ -394,6 +393,11 @@ Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
         return moving_pile;
       }
       current_card = current_card->next;
+      if(current_card != NULL && (current_card->color == current_card->previous->color
+        || current_card->value <= current_card->previous->value))
+      {
+        break;
+      }
     }
   }
   moving_pile->top_card = NULL;
@@ -513,7 +517,7 @@ Card* createNewCard(char color, int value, Stack *stack)
   return new_card;
 }
 
-ReturnState readInitFile(const char *path, Stack *stack)
+ReturnState readInitFile(const char *path, Stack *draw_stack)
 {
   FILE *fp = fopen(path, "r");
   if(fp == NULL)
@@ -612,7 +616,7 @@ ReturnState readInitFile(const char *path, Stack *stack)
         }
         card_count++;
         //printf("color: %c, value: %i\n",current_color, current_value);
-        Card *new_card = createNewCard(current_color, current_value, stack);
+        Card *new_card = createNewCard(current_color, current_value, draw_stack);
         if(new_card == NULL)
         {
           return OUT_OF_MEMORY;
@@ -622,7 +626,7 @@ ReturnState readInitFile(const char *path, Stack *stack)
         {
           return OUT_OF_MEMORY;
         }
-        addPileToStackTop(new_pile, stack);
+        addPileToStackTop(new_pile, draw_stack);
         status = 0;
         break;
       case -1:
