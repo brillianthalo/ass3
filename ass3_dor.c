@@ -185,14 +185,13 @@ int main(int argc, char* argv[]) {
         printInfoMessage(-1);
         continue;
       }
-       if(input[0] == '1' && input[1] == '0')
+      if((input_value = getValueAsInt(*input)) != -1)
       {
-        input_value = 10;
-        input += 2;
-      }
-      else if((input_value = getValueAsInt(*input)) != -1)
-      {
-        input_value = *input;
+        if(input_value = 0 && input[1] == '0')
+        {
+          input_value = 10;
+          input += 1
+        }
         input += 1 
       } 
       else
