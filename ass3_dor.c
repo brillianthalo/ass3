@@ -73,14 +73,14 @@ InfoState printInfoMessage(InfoState info_message);
 int printHelp();
 int freeAllCardMems(Stack *stack_array);
 int exitGame(Stack *stack_array);
-int getValueAsInt(char current_character, FILE *fp);
+int getValueAsInt(char current_character);
 
 int main(int argc, char* argv[]) {
   int exit_status = 1;
   char input_comm[4];
   char input_color[5];
   int input_value;
-  char input_stack;
+  int input_stack;
   Stack stack_array[7] = {{NULL, NULL},
                           {NULL, NULL},
                           {NULL, NULL},
@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
       else if((input_value = getValueAsInt(*input)) != -1)
       {
         input_value = *input;
-        input += 1 
+        input += 1;
       } 
       else
       {
@@ -202,24 +202,24 @@ int main(int argc, char* argv[]) {
       }
       if(input[2] < 7)
       {
-        input_stack = input[2]
+        input_stack = input[2] - '0';
       }
       else
       {
         printInfoMessage(-1);
       }
-      pile_to_move = findCardPileByColorValue(input_color[0],input_value);
-      movePile(pile_to_move,input_stack);
-      free(input)
+      Stack *pile_to_move = findCardPileByColorValue(input_color[0], input_value, stack_array);
+      movePile(pile_to_move, &stack_array[input_stack]);
+      free(input);
     }
     else if(strcmp(input_comm, "exit"))
     {
-      freeAllCardMems()
-      exit_status = 0
+      freeAllCardMems(stack_array);
+      exit_status = 0;
     }
     else
     {
-        printInfoMessage(-1)
+        printInfoMessage(-1);
     }  
   }
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
@@ -392,9 +392,10 @@ ReturnState checkCard (char color, int value)
   ReturnState returnValue = (++(initialized_cards[value - 1]) == 1) ? OK : INVALID_CONFIG_FILE;
   return returnValue;
 }
-int getValueAsInt(char current_character, FILE *fp)
+int getValueAsInt(char current_character)
 {
   int current_value;
+  static int was_current_character_one;
   switch(current_character)
   {
     case '2':
@@ -405,33 +406,42 @@ int getValueAsInt(char current_character, FILE *fp)
     case '7':
     case '8':
     case '9':
+      was_current_character_one = 0;
       current_value = current_character - '0';
       break;
     case 'A':
+      was_current_character_one = 0;
       current_value = 1;
       break;
     case 'J':
+      was_current_character_one = 0;
       current_value = 11;
       break;
     case 'Q':
+      was_current_character_one = 0;
       current_value = 12;
       break;
     case 'K':
+      was_current_character_one = 0;
       current_value = 13;
       break;
     case '1':
-      current_character = fgetc(fp);
-      if(current_character == '0')
+      was_current_character_one = 1;
+      current_value = 0;
+      break;
+    case '0':
+      if(was_current_character_one == 1)
       {
         current_value = 10;
       }
       else
       {
-        return INVALID_CONFIG_FILE;
+        return -1;
       }
       break;
     default:
-      return INVALID_CONFIG_FILE;
+      was_current_character_one = 0;
+      return -1;
   }
   return current_value;
 }
@@ -539,7 +549,11 @@ ReturnState readInitFile(const char *path, Stack *stack)
         }
         break;
       case 8:
-        current_value = getValueAsInt(current_character, fp);
+        current_value = getValueAsInt(current_character);
+        if(current_value == 0)
+        {
+          continue;
+        }
         ReturnState check_card_return = checkCard(current_color, current_value);
         if(check_card_return != OK)
         {

@@ -330,11 +330,11 @@ int getValueAsInt(char current_character, FILE *fp)
       }
       else
       {
-        return INVALID_CONFIG_FILE;
+        return -1;
       }
       break;
     default:
-      return INVALID_CONFIG_FILE;
+      return -1;
   }
   return current_value;
 }
@@ -371,7 +371,7 @@ ReturnState readInitFile(const char *path, Stack *stack)
   {
     int current_character = fgetc(fp);
     //printf("current_character: %i = %c, status: %i\n", current_character, current_character, status);
-    if(current_character == ' ' ||  current_character == 13)
+    if((current_character == ' ' ||  current_character == 13) && (status == 0 || status == 1 || status == 8))
     {
       //printf("continue\n");
       continue;
@@ -443,6 +443,10 @@ ReturnState readInitFile(const char *path, Stack *stack)
         break;
       case 8:
         current_value = getValueAsInt(current_character, fp);
+        if(current_value == -1)
+        {
+          return INVALID_CONFIG_FILE;
+        }
         ReturnState check_card_return = checkCard(current_color, current_value);
         if(check_card_return != OK)
         {
