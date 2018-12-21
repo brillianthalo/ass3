@@ -156,10 +156,15 @@ int main(int argc, char* argv[]) {
       }
       //printf("input_mod: %s\n", input_memory_location);
     }
+    if(current_input_size == 0)
+    {
+      continue;
+    }
     input_memory_location[current_input_size] = '\0';
     char *input = input_memory_location;
 
     //printf("command: %s\n", input_comm);
+    input = ignoreBlankspaces(input);
     if(strncmp(input, "HELP", 4) == 0)
     {
       printHelp();
@@ -249,15 +254,14 @@ int main(int argc, char* argv[]) {
       free(input_memory_location);
       printMatchfield(stack_array);
     }
-    else if(strncmp(input, "EXIT", 4))
+    else if(strncmp(input, "EXIT", 4) == 0)
     {
       freeAllCardMems(stack_array);
       exit_status = 0;
     }
     else
     {
-        printInfoMessage(INVALID_COMMAND
-        );
+        printInfoMessage(INVALID_COMMAND);
     }  
   }
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
