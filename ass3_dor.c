@@ -74,6 +74,7 @@ int printHelp();
 int freeAllCardMems(Stack *stack_array);
 int exitGame(Stack *stack_array);
 int getValueAsInt(char current_character);
+char* ignoreBlankspaces(char *string);
 
 int main(int argc, char* argv[]) {
   int exit_status = 1;
@@ -127,7 +128,7 @@ int main(int argc, char* argv[]) {
   printMatchfield(stack_array);*/
   while(exit_status)
   {
-    char input_comm[5] = "\0";
+    //char input_comm[5] = "\0";
     printMatchfield(stack_array);
     printf("esp> ");
 
@@ -140,11 +141,11 @@ int main(int argc, char* argv[]) {
       unsigned int current_need_size = 0;
     while((current_input_char = getchar()) != '\n' && current_input_char != EOF)
       {
-        if(current_input_char == ' ')
+        /*if(current_input_char == ' ')
         {
           continue;
-        }
-        printf("current_input_char: %i -> %c\n", current_input_char, current_input_char);
+        }*/
+        //printf("current_input_char: %i -> %c\n", current_input_char, current_input_char);
         input_memory_location[current_need_size] = toupper(current_input_char);
         current_need_size++;
         if(current_need_size == current_input_size)
@@ -154,18 +155,19 @@ int main(int argc, char* argv[]) {
       }
       //printf("input_mod: %s\n", input_memory_location);
     }
+    input_memory_location[current_input_size] = '\0';
     char *input = input_memory_location;
-    strncat(input_comm, input, 4);
-    input += 4;
+
     //printf("command: %s\n", input_comm);
-    if(strcmp(input_comm, "HELP") == 0)
+    if(strncmp(input, "HELP", 4) == 0)
     {
       printHelp();
     }
-    else if(strcmp(input_comm, "MOVE") == 0)
+    else if(strncmp(input, "MOVE", 4) == 0)
     {
-      //printf("input command is move\n");
-
+      printf("input command is move\n");
+      input += 4;
+      input = ignoreBlankspaces(input);
       if(strncmp(input, "RED", 3) == 0)
       {
         input_color = 'R';
@@ -184,14 +186,15 @@ int main(int argc, char* argv[]) {
         printInfoMessage(INVALID_COMMAND);
         continue;
       }
+      input = ignoreBlankspaces(input);
       if(input[0] == '1' && input[1] == '0')
       {
         input_value = 10;
         input += 2;
       }
-      else if((input_value = getValueAsInt(*input)) != -1 && input_value != 0)
+      else if((input_value = getValueAsInt(*input)) > 0)
       {
-        //printf("value as int: %i", input_value);
+        printf("value as int: %i", input_value);
         input += 1;
       } 
       else
@@ -200,6 +203,7 @@ int main(int argc, char* argv[]) {
         printInfoMessage(INVALID_COMMAND);
         continue;
       }
+      input = ignoreBlankspaces(input);
       if(strncmp(input, "TO", 2) == 0)
       {
         input += 2;
@@ -210,11 +214,20 @@ int main(int argc, char* argv[]) {
         printInfoMessage(INVALID_COMMAND);
         continue;
       }
+      input = ignoreBlankspaces(input);
       if(input[0] > '0' && input[0] < '7')
       {
         input_stack = input[0] - '0';
+        input++;
       }
       else
+      {
+        free(input_memory_location);
+        printInfoMessage(INVALID_COMMAND);
+        continue;
+      }
+      input = ignoreBlankspaces(input);
+      if (input[0] != '\0')
       {
         free(input_memory_location);
         printInfoMessage(INVALID_COMMAND);
@@ -234,18 +247,28 @@ int main(int argc, char* argv[]) {
       movePile(pile_to_move, &stack_array[input_stack]);
       free(input_memory_location);
     }
-    else if(strcmp(input_comm, "exit"))
+    else if(strncmp(input, "EXIT", 4))
     {
       freeAllCardMems(stack_array);
       exit_status = 0;
     }
     else
     {
-        printInfoMessage(-1);
+        printInfoMessage(INVALID_COMMAND
+        );
     }  
   }
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
+}
+
+char* ignoreBlankspaces(char *string)
+{
+  while(string[0] == ' ')
+  {
+    string++;
+  }
+  return string;
 }
 
 int freeAllCardMems(Stack *stack_array)
