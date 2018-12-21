@@ -148,8 +148,10 @@ int main(int argc, char* argv[]) {
           input = realloc(input, ++current_input_size);
         }
       }
+      printf("input_mod: %s", input);
     }    
-    strncat(input_comm, input, 4);   
+    strncat(input_comm, input, 4);
+    printf("command: %s", input_comm)
     if(strcmp(input_comm, "help"))
     {
       printHelp();
