@@ -77,7 +77,7 @@ int getValueAsInt(char current_character);
 
 int main(int argc, char* argv[]) {
   int exit_status = 1;
-  char input_comm[5] = "\0\0\0\0";
+
   char input_color;
   int input_value;
   int input_stack;
@@ -98,8 +98,7 @@ int main(int argc, char* argv[]) {
   }
 
   initialHandOut(stack_array);
-  printMatchfield(stack_array);
-  Stack* test_move = findCardPileByColorValue('B', 10, stack_array);
+  /*Stack* test_move = findCardPileByColorValue('B', 10, stack_array);
   if(test_move == NULL)
   {
     printErrorMessage(OUT_OF_MEMORY);
@@ -125,9 +124,11 @@ int main(int argc, char* argv[]) {
     movePile(test_move, stack_array + GAME_STACK_4);
     printf("\nhard coded moving of R6 to GAMESTACK 4\n\n");
   }
-  printMatchfield(stack_array);
+  printMatchfield(stack_array);*/
   while(exit_status)
   {
+    char input_comm[5] = "\0";
+    printMatchfield(stack_array);
     printf("esp> ");
 
     char *input_memory_location = calloc(1, 20);
@@ -151,79 +152,85 @@ int main(int argc, char* argv[]) {
           input_memory_location = realloc(input_memory_location, ++current_input_size);
         }
       }
-      printf("input_mod: %s\n", input_memory_location);
+      //printf("input_mod: %s\n", input_memory_location);
     }
     char *input = input_memory_location;
     strncat(input_comm, input, 4);
-    printf("command: %s\n", input_comm);
+    input += 4;
+    //printf("command: %s\n", input_comm);
     if(strcmp(input_comm, "HELP") == 0)
     {
       printHelp();
     }
     else if(strcmp(input_comm, "MOVE") == 0)
     {
-      if(*input == 'R')
+      //printf("input command is move\n");
+
+      if(strncmp(input, "RED", 3) == 0)
       {
-        if(strncmp(input, "RED", 3) == 0)
-        {
-          input_color = 'R';
-          printf("color: %c", input_color);
-          input += 3;
-        }
-        else
-        {
-          free(input_memory_location);
-          printInfoMessage(-1);
-          continue;
-        }
+        input_color = 'R';
+        //printf("color: %c", input_color);
+        input += 3;
       }
-      else if(*input == 'B')
+      else if(strncmp(input, "BLACK", 5) == 0)
       {
-        if(strncmp(input, "BLACK", 5) == 0)
-        {
-          input_color = 'R';
-          printf("color: %c", input_color);
-          input += 5;
-        }
-        else
-        {
-          free(input_memory_location);
-          printInfoMessage(-1);
-          continue;
-        }
+        input_color = 'B';
+        //printf("color: %c", input_color);
+        input += 5;
       }
       else
       {
         free(input_memory_location);
-        printInfoMessage(-1);
+        printInfoMessage(INVALID_COMMAND);
         continue;
       }
-       if(input[0] == '1' && input[1] == '0')
+      if(input[0] == '1' && input[1] == '0')
       {
         input_value = 10;
         input += 2;
       }
-      else if((input_value = getValueAsInt(*input)) != -1)
+      else if((input_value = getValueAsInt(*input)) != -1 && input_value != 0)
       {
-        input_value = *input;
+        //printf("value as int: %i", input_value);
         input += 1;
       } 
       else
       {
         free(input_memory_location);
-        printInfoMessage(-1);
+        printInfoMessage(INVALID_COMMAND);
         continue;
       }
-      if(input[2] < 7)
+      if(strncmp(input, "TO", 2) == 0)
       {
-        input_stack = input[2] - '0';
+        input += 2;
       }
       else
       {
         free(input_memory_location);
-        printInfoMessage(-1);
+        printInfoMessage(INVALID_COMMAND);
+        continue;
+      }
+      if(input[0] > '0' && input[0] < '7')
+      {
+        input_stack = input[0] - '0';
+      }
+      else
+      {
+        free(input_memory_location);
+        printInfoMessage(INVALID_COMMAND);
+        continue;
       }
       Stack *pile_to_move = findCardPileByColorValue(input_color, input_value, stack_array);
+      if(pile_to_move == NULL)
+      {
+        printErrorMessage(OUT_OF_MEMORY);
+        return OUT_OF_MEMORY;
+      }
+      else if (pile_to_move->bottom_card == NULL)
+      {
+        printInfoMessage(INVALID_MOVE);
+        continue;
+      }
       movePile(pile_to_move, &stack_array[input_stack]);
       free(input_memory_location);
     }
