@@ -77,7 +77,7 @@ int getValueAsInt(char current_character);
 
 int main(int argc, char* argv[]) {
   int exit_status = 1;
-  char input_comm[4];
+  char input_comm[5] = "\0\0\0\0";
   char input_color;
   int input_value;
   int input_stack;
@@ -130,9 +130,9 @@ int main(int argc, char* argv[]) {
   {
     printf("esp> ");
 
-    char *input_memory_location = calloc(1,19);
+    char *input_memory_location = calloc(1, 20);
 
-    unsigned int current_input_size = 19;
+    unsigned int current_input_size = 20;
     if(input_memory_location != NULL)
     {
       char current_input_char = EOF;
@@ -143,7 +143,9 @@ int main(int argc, char* argv[]) {
         {
           continue;
         }
-        input_memory_location[current_need_size++] = toupper(current_input_char);
+        printf("current_input_char: %i -> %c\n", current_input_char, current_input_char);
+        input_memory_location[current_need_size] = toupper(current_input_char);
+        current_need_size++;
         if(current_need_size == current_input_size)
         {
           input_memory_location = realloc(input_memory_location, ++current_input_size);
@@ -154,11 +156,11 @@ int main(int argc, char* argv[]) {
     char *input = input_memory_location;
     strncat(input_comm, input, 4);
     printf("command: %s\n", input_comm);
-    if(strcmp(input_comm, "HELP"))
+    if(strcmp(input_comm, "HELP") == 0)
     {
       printHelp();
     }
-    else if(strcmp(input_comm, "MOVE"))
+    else if(strcmp(input_comm, "MOVE") == 0)
     {
       if(*input == 'R')
       {
