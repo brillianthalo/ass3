@@ -126,10 +126,11 @@ int main(int argc, char* argv[]) {
     printf("\nhard coded moving of R6 to GAMESTACK 4\n\n");
   }
   printMatchfield(stack_array);*/
+  printMatchfield(stack_array);
   while(exit_status)
   {
     //char input_comm[5] = "\0";
-    printMatchfield(stack_array);
+
     printf("esp> ");
 
     char *input_memory_location = calloc(1, 20);
@@ -246,6 +247,7 @@ int main(int argc, char* argv[]) {
       }
       movePile(pile_to_move, &stack_array[input_stack]);
       free(input_memory_location);
+      printMatchfield(stack_array);
     }
     else if(strncmp(input, "EXIT", 4))
     {
