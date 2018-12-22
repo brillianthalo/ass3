@@ -1,22 +1,15 @@
-//TODO:
-//  - config einlesen und überprüfen CHECK
-//  - Fehlerverwaltung
-//      - out of memory
-//      - invalid file
-//      - invalid command
-//  - Initaler Spielstart
-//        - Erstes Kartenausteilen CHECK
-//        - Spielfedgenerierung CHECK
-//        - Userinput
-//  - Usereingaben einlesen und verarbeiten JAKOB
-//  - Spielmechaniken implementieren JAKOB
-//  - help implementieren CHECK
-//  - exit UND EOF implementieren
-//  - win- und lose-condition implementieren
-//  - DOKUMENTATION
-//
-
-
+/*-----------------------------------------------------------------------------
+ * ass3.c
+ *
+ * A Solitaire like Card Game
+ *
+ * Group: 2 - study assistant Martin Ferdinand Haubenwallner
+ *
+ * Author: Kilian Domes 11801231
+ *
+ * Latest Changes: 22.12.2018 (by Kilian Domes)
+ * ----------------------------------------------------------------------------
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -542,6 +535,16 @@ int printMatchfield (Stack *stack_array)
   return 0;
 }
 
+//------------------------------------------------------------------------------
+///
+/// function for evaluating and executing the MOVE user command
+///
+/// @param *input pointer to the input
+/// @param *stack_array program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 ReturnState doMove(char *input, Stack *stack_array)
 {
   char input_color;
@@ -619,6 +622,16 @@ ReturnState doMove(char *input, Stack *stack_array)
   }
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass3
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnState which defines type of error
+//
+
 int main(int argc, char* argv[])
 {
   int exit_status = 1;
@@ -695,9 +708,9 @@ int main(int argc, char* argv[])
     {
       input += 4;
       ReturnState move_return_state = doMove(input, stack_array);
+      free(input_memory_location);
       if(move_return_state == OK)
       {
-        free(input_memory_location);
         printMatchfield(stack_array);
       }
       else if(move_return_state < 0)
@@ -707,7 +720,6 @@ int main(int argc, char* argv[])
       else
       {
         freeAllCardMems(stack_array);
-        free(input_memory_location);
         return move_return_state;
       }
     }
