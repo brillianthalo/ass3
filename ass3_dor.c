@@ -640,7 +640,7 @@ int main(int argc, char* argv[])
 
   initialHandOut(stack_array);
   printMatchfield(stack_array);
-  while(exit_status)
+  while(1)
   {
 
     printf("esp> ");
@@ -716,7 +716,7 @@ int main(int argc, char* argv[])
       printf("EXIT or EOF\n");
       free(input_memory_location);
       freeAllCardMems(stack_array);
-      exit_status = 0;
+      return 0
     }
     else
     {
@@ -724,6 +724,4 @@ int main(int argc, char* argv[])
       free(input_memory_location);
     }
   }
-  freeAllCardMems(stack_array);
-  return 0;
 }
