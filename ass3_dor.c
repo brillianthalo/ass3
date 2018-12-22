@@ -133,34 +133,39 @@ int main(int argc, char* argv[]) {
 
     printf("esp> ");
 
-    char *input_memory_location = calloc(1, 20);
+    char *input_memory_location = calloc(1, 1);
 
-    unsigned int current_input_size = 20;
+    unsigned int current_input_size = 0;
     if(input_memory_location != NULL)
     {
       char current_input_char;
-      unsigned int current_need_size = 0;
-    while((current_input_char = getchar()) != '\n' && current_input_char != EOF)
+      while((current_input_char = getchar()) != '\n' && current_input_char != EOF)
       {
         /*if(current_input_char == ' ')
         {
           continue;
         }*/
         //printf("current_input_char: %i -> %c\n", current_input_char, current_input_char);
-        input_memory_location[current_need_size] = toupper(current_input_char);
-        current_need_size++;
-        if(current_need_size == current_input_size)
-        {
-          input_memory_location = realloc(input_memory_location, ++current_input_size);
-        }
+        input_memory_location[current_input_size] = toupper(current_input_char);
+        input_memory_location = realloc(input_memory_location, ++current_input_size);
       }
+      if(current_input_char == EOF)
+      {
+
+        return 0;
+      }
+      input_memory_location[current_input_size] = '\0';
       //printf("input_mod: %s\n", input_memory_location);
     }
-    if(current_input_size == 0)
+    else
     {
+      return OUT_OF_MEMORY;
+    }
+    if(current_input_size == 1 )
+    {
+      free(input_memory_location);
       continue;
     }
-    input_memory_location[current_input_size] = '\0';
     char *input = input_memory_location;
 
     //printf("command: %s\n", input_comm);
@@ -171,7 +176,7 @@ int main(int argc, char* argv[]) {
     }
     else if(strncmp(input, "MOVE", 4) == 0)
     {
-      printf("input command is move\n");
+      //printf("input command is move\n");
       input += 4;
       input = ignoreBlankspaces(input);
       if(strncmp(input, "RED", 3) == 0)
@@ -200,7 +205,7 @@ int main(int argc, char* argv[]) {
       }
       else if((input_value = getValueAsInt(*input)) > 0)
       {
-        printf("value as int: %i", input_value);
+        //printf("value as int: %i", input_value);
         input += 1;
       } 
       else
@@ -256,18 +261,18 @@ int main(int argc, char* argv[]) {
       if(info_state == VALID_COMMAND)
       {
         movePile(pile_to_move, &stack_array[input_stack]);
-        free(input_memory_location);
         printMatchfield(stack_array);
       }
       else
       {
         printInfoMessage(INVALID_MOVE);
-        free(input_memory_location);
         continue;
       }
     }
-    else if(strncmp(input, "EXIT", 4) == 0)
+    else if(strncmp(input, "EXIT", 4) == 0 || input[0] == EOF)
     {
+      printf("EXIT or EOF\n");
+      free(input_memory_location);
       freeAllCardMems(stack_array);
       exit_status = 0;
     }
@@ -431,17 +436,20 @@ InfoState checkValidMove(Stack *moving_pile, Stack *destination_stack)
 Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
 {
   Stack *moving_pile = malloc(sizeof(Stack));
+  Card *current_card;
   if(moving_pile == NULL)
   {
     return moving_pile;
   }
-
-  moving_pile->top_card = (stack_array + DRAW_STACK)->top_card;
-  moving_pile->bottom_card = moving_pile->top_card;
-  Card* current_card = moving_pile->bottom_card;
-  if (current_card->color == color && current_card->value == value)
+  if((stack_array + DRAW_STACK)->top_card != NULL)
   {
-    return moving_pile;
+    moving_pile->top_card = (stack_array + DRAW_STACK)->top_card;
+    moving_pile->bottom_card = moving_pile->top_card;
+    current_card = moving_pile->bottom_card;
+    if (current_card->color == color && current_card->value == value)
+    {
+      return moving_pile;
+    }
   }
   for(int current_stack_number = 1; current_stack_number < (MAXSTACK - 2);
     current_stack_number++)
@@ -597,7 +605,7 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
   {
     int current_character = fgetc(fp);
     //printf("current_character: %i = %c, status: %i\n", current_character, current_character, status);
-    if(current_character == ' ' ||  current_character == '\r')
+    if(current_character == '\r')
     {
       //printf("continue\n");
       continue;
@@ -615,7 +623,7 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
         {
           status = 6;
         }
-        else if (current_character == '\n')
+        else if (current_character == '\n' || current_character == ' ')
         {
           status = 1;
         }
@@ -665,10 +673,15 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
         }
         break;
       case 8:
+        if(current_character == ' ')
+        {
+          continue;
+        }
         current_value = getValueAsInt(current_character);
         if(current_value == 0)
         {
-          continue;
+          current_character = fgetc(fp);
+          current_value = getValueAsInt(current_character);
         }
         ReturnState check_card_return = checkCard(current_color, current_value);
         if(check_card_return != OK)
@@ -704,7 +717,7 @@ int printStack(Stack *stack)
   Card *actual_card = stack->bottom_card;
   while(actual_card != NULL)
   {
-    printf("%c %i\n", actual_card->color, actual_card->value);
+    //printf("%c %i\n", actual_card->color, actual_card->value);
     actual_card = actual_card->previous;
   }
   return 0;
