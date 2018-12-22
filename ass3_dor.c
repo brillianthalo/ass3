@@ -90,7 +90,6 @@ int main(int argc, char* argv[]) {
                           {NULL, "DEPOSIT", NULL},
                           {NULL, "DEPOSIT", NULL}};
 
-  //printf("argv: %s\n", argv[1]);
   ReturnState return_value = readInitFile(argv[1], &(stack_array[DRAW_STACK]));
 
   if(return_value != OK)
@@ -99,37 +98,9 @@ int main(int argc, char* argv[]) {
   }
 
   initialHandOut(stack_array);
-  /*Stack* test_move = findCardPileByColorValue('B', 10, stack_array);
-  if(test_move == NULL)
-  {
-    printErrorMessage(OUT_OF_MEMORY);
-    return 1;
-  }
-  else if(test_move->bottom_card == NULL)
-  {
-    printInfoMessage(INVALID_MOVE);
-  }
-  else
-  {
-    movePile(test_move, stack_array + GAME_STACK_2);
-    printf("\nhard coded moving of B9 to GAMESTACK 2\n\n");
-  }
-  printMatchfield(stack_array);
-  test_move = findCardPileByColorValue('R', 6, stack_array);
-  if(test_move == NULL)
-  {
-    printf("not valid move");
-  }
-  else
-  {
-    movePile(test_move, stack_array + GAME_STACK_4);
-    printf("\nhard coded moving of R6 to GAMESTACK 4\n\n");
-  }
-  printMatchfield(stack_array);*/
   printMatchfield(stack_array);
   while(exit_status)
   {
-    //char input_comm[5] = "\0";
 
     printf("esp> ");
 
@@ -141,11 +112,6 @@ int main(int argc, char* argv[]) {
       char current_input_char;
       while((current_input_char = getchar()) != '\n' && current_input_char != EOF)
       {
-        /*if(current_input_char == ' ')
-        {
-          continue;
-        }*/
-        //printf("current_input_char: %i -> %c\n", current_input_char, current_input_char);
         input_memory_location[current_input_size] = toupper(current_input_char);
         input_memory_location = realloc(input_memory_location, ++current_input_size);
       }
@@ -155,7 +121,6 @@ int main(int argc, char* argv[]) {
         return 0;
       }
       input_memory_location[current_input_size] = '\0';
-      //printf("input_mod: %s\n", input_memory_location);
     }
     else
     {
@@ -168,7 +133,6 @@ int main(int argc, char* argv[]) {
     }
     char *input = input_memory_location;
 
-    //printf("command: %s\n", input_comm);
     input = ignoreBlankspaces(input);
     if(strncmp(input, "HELP", 4) == 0)
     {
@@ -176,19 +140,16 @@ int main(int argc, char* argv[]) {
     }
     else if(strncmp(input, "MOVE", 4) == 0)
     {
-      //printf("input command is move\n");
       input += 4;
       input = ignoreBlankspaces(input);
       if(strncmp(input, "RED", 3) == 0)
       {
         input_color = 'R';
-        //printf("color: %c", input_color);
         input += 3;
       }
       else if(strncmp(input, "BLACK", 5) == 0)
       {
         input_color = 'B';
-        //printf("color: %c", input_color);
         input += 5;
       }
       else
@@ -205,7 +166,6 @@ int main(int argc, char* argv[]) {
       }
       else if((input_value = getValueAsInt(*input)) > 0)
       {
-        //printf("value as int: %i", input_value);
         input += 1;
       } 
       else
@@ -261,11 +221,13 @@ int main(int argc, char* argv[]) {
       if(info_state == VALID_COMMAND)
       {
         movePile(pile_to_move, &stack_array[input_stack]);
+        free(input_memory_location);
         printMatchfield(stack_array);
       }
       else
       {
         printInfoMessage(INVALID_MOVE);
+        free(input_memory_location)
         continue;
       }
     }
@@ -282,7 +244,6 @@ int main(int argc, char* argv[]) {
         free(input_memory_location);
     }  
   }
-  //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
   return 0;
 }
 
@@ -497,7 +458,6 @@ int initialHandOut (Stack *stack_array)
 {
   for(int offset = 0; offset < 4; offset++)
   {
-    //printf("offset: %i\n", offset);
     for(int distribute = (1 + offset); distribute <= 4; distribute++)
     {
      // printf("distribute: %i\n", distribute);
@@ -604,13 +564,10 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
   while(!feof(fp))
   {
     int current_character = fgetc(fp);
-    //printf("current_character: %i = %c, status: %i\n", current_character, current_character, status);
     if(current_character == '\r')
     {
-      //printf("continue\n");
       continue;
     }
-    //printf("current_character: %c post continue\n", current_character);
     switch(status)
     {
       case 1:
@@ -689,7 +646,6 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
           return check_card_return;
         }
         card_count++;
-        //printf("color: %c, value: %i\n",current_color, current_value);
         Card *new_card = createNewCard(current_color, current_value, draw_stack);
         if(new_card == NULL)
         {
@@ -711,16 +667,6 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
   }
   ReturnState return_value = (card_count == 26) ? OK : INVALID_CONFIG_FILE;
   return return_value;
-}
-int printStack(Stack *stack)
-{
-  Card *actual_card = stack->bottom_card;
-  while(actual_card != NULL)
-  {
-    //printf("%c %i\n", actual_card->color, actual_card->value);
-    actual_card = actual_card->previous;
-  }
-  return 0;
 }
 
 int getValueAsString(int value, char *current_value_to_s)
@@ -765,11 +711,10 @@ int printMatchfield (Stack *stack_array)
   {
     for(int current_col = 0; current_col < MAXSTACK; current_col++)
     {
-      char current_col_end[4] = "\0\0\0";
+      char current_col_end[4] = "\0";
       char current_color;
       int current_value;
-      char current_value_to_s[3] = "\0\0";
-      //printf("current_col: %i", current_col);
+      char current_value_to_s[3] = "\0";
       (current_col != (MAXSTACK - 1)) ? strcpy(current_col_end, " | ")
         : strcpy(current_col_end, "\0");
       Card* current_card = *(current_pointer + current_col);
