@@ -716,7 +716,7 @@ int main(int argc, char* argv[])
       printf("EXIT or EOF\n");
       free(input_memory_location);
       freeAllCardMems(stack_array);
-      return 0
+      return 0;
     }
     else
     {
