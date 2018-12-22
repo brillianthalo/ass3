@@ -112,6 +112,10 @@ ReturnState printErrorMessage(ReturnState return_value)
 Stack* makeSingleCardToPile(Card *card)
 {
   Stack *pile = malloc(sizeof(Stack));
+  if(pile == NULL)
+  {
+    return NULL;
+  }
   pile->bottom_card_ = card;
   pile->top_card_ = card;
   return pile;
@@ -256,7 +260,7 @@ int initialHandOut (Stack *stack_array)
     {
      // printf("distribute: %i\n", distribute);
       Stack *move_pile = makeSingleCardToPile((stack_array + DRAW_STACK)->top_card_);
-      movePile(move_pile, &stack_array[distribute]);
+      movePile(move_pile, stack_array + distribute);
     }
   }
   return 0;
@@ -329,8 +333,7 @@ int getValueAsInt(char current_character)
 
 Card* createNewCard(char color, int value, Stack *stack)
 {
-  Card *new_card;
-  new_card = malloc(sizeof(Card));
+  Card *new_card = malloc(sizeof(Card));
   if(new_card == NULL)
   {
     return NULL;
@@ -460,6 +463,7 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
     }
   }
   ReturnState return_value = (card_count == 26) ? OK : INVALID_CONFIG_FILE;
+  fclose(fp);
   return return_value;
 }
 
@@ -606,10 +610,10 @@ ReturnState doMove(char *input, Stack *stack_array)
   }
   else
   {
-    return_value = checkValidMove(pile_to_move, &stack_array[input_stack]);
+    return_value = checkValidMove(pile_to_move, stack_array + input_stack);
     if(return_value == OK)
     {
-      movePile(pile_to_move, &stack_array[input_stack]);
+      movePile(pile_to_move, stack_array + input_stack);
     }
     return return_value;
   }
@@ -627,7 +631,7 @@ int main(int argc, char* argv[])
                           {NULL, "DEPOSIT", NULL},
                           {NULL, "DEPOSIT", NULL}};
 
-  ReturnState return_value = readInitFile(argv[1], &(stack_array[DRAW_STACK]));
+  ReturnState return_value = readInitFile(argv[1], stack_array + DRAW_STACK));
 
   if(return_value != OK)
   {
