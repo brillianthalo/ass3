@@ -234,7 +234,7 @@ Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
 
 int movePile(Stack *moving_pile, Stack *to_stack)
 {
-  Card* moving_card = moving_pile->bottom_card_;
+  Card *moving_card = moving_pile->bottom_card_;
   moving_card->stack_->top_card_ = moving_card->next_;
   if(moving_card->next_ != NULL)
   {
@@ -607,7 +607,10 @@ ReturnState doMove(char *input, Stack *stack_array)
   else
   {
     return_value = checkValidMove(pile_to_move, &stack_array[input_stack]);
-    movePile(pile_to_move, &stack_array[input_stack]);
+    if(return_value == OK)
+    {
+      movePile(pile_to_move, &stack_array[input_stack]);
+    }
     return return_value;
   }
 }
