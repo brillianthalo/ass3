@@ -631,7 +631,7 @@ int main(int argc, char* argv[])
                           {NULL, "DEPOSIT", NULL},
                           {NULL, "DEPOSIT", NULL}};
 
-  ReturnState return_value = readInitFile(argv[1], stack_array + DRAW_STACK));
+  ReturnState return_value = readInitFile(argv[1], stack_array + DRAW_STACK);
 
   if(return_value != OK)
   {
