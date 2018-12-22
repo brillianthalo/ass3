@@ -43,6 +43,15 @@ typedef enum _ReturnState_
   INVALID_MOVE = -2
 } ReturnState;
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 char* ignoreBlankspaces(char *string)
 {
@@ -52,6 +61,16 @@ char* ignoreBlankspaces(char *string)
   }
   return string;
 }
+
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 int freeAllCardMems(Stack *stack_array)
 {
@@ -69,11 +88,31 @@ int freeAllCardMems(Stack *stack_array)
   return 0;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 int printHelp()
 {
   printf("possible command:\n - move <color> <value> to <stacknumber>\n - help\n - exit\n");
   return 0;
 }
+
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 ReturnState printErrorMessage(ReturnState return_value)
 {
@@ -101,6 +140,15 @@ ReturnState printErrorMessage(ReturnState return_value)
   return return_value;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 Stack* makeSingleCardToPile(Card *card)
 {
@@ -114,6 +162,15 @@ Stack* makeSingleCardToPile(Card *card)
   return pile;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 int addPileToStackTop(Stack *add_pile, Stack *card_stack)
 {
@@ -136,6 +193,16 @@ int addPileToStackTop(Stack *add_pile, Stack *card_stack)
   free(add_pile);
   return 0;
 }
+
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 ReturnState checkValidMove(Stack *moving_pile, Stack *destination_stack)
 {
@@ -185,6 +252,16 @@ ReturnState checkValidMove(Stack *moving_pile, Stack *destination_stack)
   return OK;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
 {
   Stack *moving_pile = malloc(sizeof(Stack));
@@ -229,6 +306,16 @@ Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
   return moving_pile;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 int movePile(Stack *moving_pile, Stack *to_stack)
 {
   Card *moving_card = moving_pile->bottom_card_;
@@ -245,6 +332,16 @@ int movePile(Stack *moving_pile, Stack *to_stack)
   return 0;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 int initialHandOut (Stack *stack_array)
 {
   for(int offset = 0; offset < 4; offset++)
@@ -259,6 +356,16 @@ int initialHandOut (Stack *stack_array)
   return 0;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 ReturnState checkCard (char color, int value)
 {
   static int initialized_cards[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -270,6 +377,17 @@ ReturnState checkCard (char color, int value)
   ReturnState returnValue = (++(initialized_cards[value - 1]) == 1) ? OK : INVALID_CONFIG_FILE;
   return returnValue;
 }
+
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 int getValueAsInt(char current_character)
 {
   int current_value;
@@ -324,6 +442,16 @@ int getValueAsInt(char current_character)
   return current_value;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 Card* createNewCard(char color, int value, Stack *stack)
 {
   Card *new_card = malloc(sizeof(Card));
@@ -338,6 +466,16 @@ Card* createNewCard(char color, int value, Stack *stack)
   new_card->previous_ = NULL;
   return new_card;
 }
+
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 ReturnState readInitFile(const char *path, Stack *draw_stack)
 {
@@ -460,6 +598,16 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
   return return_value;
 }
 
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
+
 int getValueAsString(int value, char *current_value_to_s)
 {
   switch (value)
@@ -487,6 +635,16 @@ int getValueAsString(int value, char *current_value_to_s)
   }
   return 0;
 }
+
+//------------------------------------------------------------------------------
+///
+/// Entry function of the program for ass1
+///
+/// @param argc number of arguments
+/// @param argv program arguments
+///
+/// @return value of ReturnValue which defines type of error
+//
 
 int printMatchfield (Stack *stack_array)
 {
@@ -537,10 +695,10 @@ int printMatchfield (Stack *stack_array)
 
 //------------------------------------------------------------------------------
 ///
-/// function for evaluating and executing the MOVE user command
+/// function for evaluating and executing the "MOVE" user command
 ///
-/// @param *input pointer to the input
-/// @param *stack_array program arguments
+/// @param *input pointer to the input-string
+/// @param *stack_array pointer to array of stacks
 ///
 /// @return value of ReturnValue which defines type of error
 //
@@ -702,6 +860,7 @@ int main(int argc, char* argv[])
     input = ignoreBlankspaces(input);
     if(strncmp(input, "HELP", 4) == 0)
     {
+      free(input_memory_location);
       printHelp();
     }
     else if(strncmp(input, "MOVE", 4) == 0)
@@ -725,7 +884,6 @@ int main(int argc, char* argv[])
     }
     else if(strncmp(input, "EXIT", 4) == 0 || input[0] == EOF)
     {
-      printf("EXIT or EOF\n");
       free(input_memory_location);
       freeAllCardMems(stack_array);
       return 0;
