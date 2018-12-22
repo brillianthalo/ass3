@@ -597,7 +597,7 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
   {
     int current_character = fgetc(fp);
     //printf("current_character: %i = %c, status: %i\n", current_character, current_character, status);
-    if(current_character == ' ' ||  current_character == 13)
+    if(current_character == ' ' ||  current_character == '\r')
     {
       //printf("continue\n");
       continue;
@@ -605,13 +605,6 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
     //printf("current_character: %c post continue\n", current_character);
     switch(status)
     {
-      case 0:
-        status = -1;
-        if(current_character == 10)
-        {
-          status = 1;
-        }
-        break;
       case 1:
         status = -1;
         if(current_character == 'B')
@@ -621,6 +614,10 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
         else if (current_character == 'R')
         {
           status = 6;
+        }
+        else if (current_character == '\n')
+        {
+          status = 1;
         }
         break;
       case 2:
@@ -691,7 +688,7 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
           return OUT_OF_MEMORY;
         }
         addPileToStackTop(new_pile, draw_stack);
-        status = 0;
+        status = 1;
         break;
       case -1:
       default:
