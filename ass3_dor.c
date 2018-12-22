@@ -638,31 +638,40 @@ int main(int argc, char* argv[])
 
     printf("esp> ");
 
-    char *input_memory_location = malloc(1);
+    char *input_memory_location = NULL;
 
     unsigned int current_input_size = 0;
-    if(input_memory_location != NULL)
+    char current_input_char;
+    while((current_input_char = getchar()) != '\n' && current_input_char != '\r' && current_input_char != EOF)
     {
-      input_memory_location[0] = '\n';
-      char current_input_char;
-      while((current_input_char = getchar()) != '\n' && current_input_char != '\r' && current_input_char != EOF)
-      {
-        input_memory_location[current_input_size] = toupper(current_input_char);
-        input_memory_location = realloc(input_memory_location, ++current_input_size);
-      }
-      if(current_input_char == EOF)
+      input_memory_location = realloc(input_memory_location, current_input_size + 1);
+      if(input_memory_location == NULL)
       {
         freeAllCardMems(stack_array);
-        free(input_memory_location);
-        return 0;
+        return OUT_OF_MEMORY;
       }
-      input_memory_location[current_input_size] = '\0';
+      input_memory_location[current_input_size] = toupper(current_input_char);
+      current_input_size++;
     }
-    else
+    input_memory_location = realloc(input_memory_location, current_input_size + 1);
+    if(input_memory_location == NULL)
     {
       freeAllCardMems(stack_array);
       return OUT_OF_MEMORY;
     }
+    input_memory_location[current_input_size] = '\0';
+    if(current_input_char == EOF)
+    {
+      freeAllCardMems(stack_array);
+      free(input_memory_location);
+      return 0;
+    }
+    /*
+    else
+    {
+      freeAllCardMems(stack_array);
+      return OUT_OF_MEMORY;
+    }*/
     if(current_input_size == 0)
     {
       free(input_memory_location);
