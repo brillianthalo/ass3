@@ -43,6 +43,7 @@ typedef struct _Card_
 
 typedef struct _Stack_ {
   Card *top_card;
+  char *stack_type;
   Card *bottom_card;
 } Stack;
 typedef enum _ReturnState_
@@ -63,7 +64,7 @@ typedef enum _InfoState_ {
 ReturnState readInitFile(const char *path, Stack *draw_stack);
 int movePile(Stack *moving_pile, Stack *to_stack);
 int initialHandOut(Stack *stack_array);
-
+InfoState checkValidMove(Stack *moving_pile, Stack *destination_stack);
 ReturnState printErrorMessage(ReturnState return_value);
 //int printStack(Stack *stack);
 int printMatchfield(Stack *stack_array);
@@ -81,13 +82,13 @@ int main(int argc, char* argv[]) {
   char input_color;
   int input_value;
   int input_stack;
-  Stack stack_array[7] = {{NULL, NULL},
-                          {NULL, NULL},
-                          {NULL, NULL},
-                          {NULL, NULL},
-                          {NULL, NULL},
-                          {NULL, NULL},
-                          {NULL, NULL}};
+  Stack stack_array[7] = {{NULL, "DRAW", NULL},
+                          {NULL, "GAME", NULL},
+                          {NULL, "GAME", NULL},
+                          {NULL, "GAME", NULL},
+                          {NULL, "GAME", NULL},
+                          {NULL, "DEPOSIT", NULL},
+                          {NULL, "DEPOSIT", NULL}};
 
   //printf("argv: %s\n", argv[1]);
   ReturnState return_value = readInitFile(argv[1], &(stack_array[DRAW_STACK]));
@@ -137,7 +138,7 @@ int main(int argc, char* argv[]) {
     unsigned int current_input_size = 20;
     if(input_memory_location != NULL)
     {
-      char current_input_char = EOF;
+      char current_input_char;
       unsigned int current_need_size = 0;
     while((current_input_char = getchar()) != '\n' && current_input_char != EOF)
       {
@@ -242,16 +243,28 @@ int main(int argc, char* argv[]) {
       if(pile_to_move == NULL)
       {
         printErrorMessage(OUT_OF_MEMORY);
+        free(input_memory_location);
         return OUT_OF_MEMORY;
       }
       else if (pile_to_move->bottom_card == NULL)
       {
         printInfoMessage(INVALID_MOVE);
+        free(input_memory_location);
         continue;
       }
-      movePile(pile_to_move, &stack_array[input_stack]);
-      free(input_memory_location);
-      printMatchfield(stack_array);
+      InfoState info_state = checkValidMove(pile_to_move, &stack_array[input_stack]);
+      if(info_state == VALID_COMMAND)
+      {
+        movePile(pile_to_move, &stack_array[input_stack]);
+        free(input_memory_location);
+        printMatchfield(stack_array);
+      }
+      else
+      {
+        printInfoMessage(INVALID_MOVE);
+        free(input_memory_location);
+        continue;
+      }
     }
     else if(strncmp(input, "EXIT", 4) == 0)
     {
@@ -261,6 +274,7 @@ int main(int argc, char* argv[]) {
     else
     {
         printInfoMessage(INVALID_COMMAND);
+        free(input_memory_location);
     }  
   }
   //printf("top card: %c %i, bottom card: %c %i\n", stack_array[DRAW_STACK].top_card->color, stack_array[DRAW_STACK].top_card->value, stack_array[DRAW_STACK].bottom_card->color, stack_array[DRAW_STACK].bottom_card->value);
@@ -343,6 +357,7 @@ Stack* makeSingleCardToPile(Card *card)
   return pile;
 }
 
+
 int addPileToStackTop(Stack *add_pile, Stack *card_stack)
 {
   Card *new_card = add_pile->bottom_card;
@@ -363,6 +378,54 @@ int addPileToStackTop(Stack *add_pile, Stack *card_stack)
   }
   free(add_pile);
   return 0;
+}
+
+InfoState checkValidMove(Stack *moving_pile, Stack *destination_stack)
+{
+  Card *moving_card = moving_pile->bottom_card;
+  char *stack_type = destination_stack->stack_type;
+  Card *destination_card = destination_stack->top_card;
+
+  if (strcmp(destination_stack->stack_type, "DRAW") == 0)
+  {
+    free(moving_pile);
+    return INVALID_MOVE;
+  }
+  else if (destination_card == NULL) {
+    if (strcmp(destination_stack->stack_type, "DEPOSIT") == 0 && moving_card->value != 1) {
+      free(moving_pile);
+      return INVALID_MOVE;
+    }
+    else if (strcmp(destination_stack->stack_type, "GAME") == 0
+      && moving_card->value != 13)
+    {
+      free(moving_pile);
+      return INVALID_MOVE;
+    }
+    else
+    {
+      return VALID_COMMAND;
+    }
+  }
+  else if (strcmp(stack_type, "DEPOSIT") == 0)
+  {
+    if(moving_card->value != (destination_card->value + 1)
+       || moving_card->color != destination_card->color)
+    {
+      free(moving_pile);
+      return INVALID_MOVE;
+    }
+  }
+  else
+  {
+    if (moving_card->value != (destination_card->value - 1)
+      || moving_card->color == destination_card->color)
+    {
+      free(moving_pile);
+      return INVALID_MOVE;
+    }
+  }
+  return VALID_COMMAND;
 }
 
 Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
@@ -393,8 +456,9 @@ Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
         return moving_pile;
       }
       current_card = current_card->next;
-      if(current_card != NULL && (current_card->color == current_card->previous->color
-        || current_card->value <= current_card->previous->value))
+      if(current_card != NULL &&
+        (current_card->color == current_card->previous->color ||
+        current_card->value != current_card->previous->value + 1))
       {
         break;
       }
