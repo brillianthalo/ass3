@@ -628,7 +628,7 @@ void printMatchfield (Stack *stack_array)
 {
   printf("0   | 1   | 2   | 3   | 4   | DEP | DEP\n");
   printf("---------------------------------------\n");
-  Card* current_pointer[MAXSTACK];
+  Card *current_pointer[MAXSTACK];
   for(int pointer_copy = 0; pointer_copy < MAXSTACK; pointer_copy++)
   {
     current_pointer[pointer_copy] = (stack_array + pointer_copy)->bottom_card_;
@@ -764,12 +764,12 @@ ReturnState doMove(char *input, Stack *stack_array)
 /// Entry function of the program for ass3
 ///
 /// @param argc number of arguments
-/// @param argv program arguments
+/// @param argv string array of program arguments
 ///
 /// @return value of ReturnState which defines type of error
 //
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   Stack stack_array[7] = {{NULL, "DRAW", NULL},
                           {NULL, "GAME", NULL},
