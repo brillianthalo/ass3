@@ -8,7 +8,7 @@
 // Authors: Kilian Domes 11801231
 // Jakob Dorighi 11823384
 //
-// Latest Changes: 22.12.2018 (by Kilian Domes)
+// Latest Changes: 23.12.2018 (by Kilian Domes)
 //----------------------------------------------------------------------------
 //
 
@@ -20,6 +20,10 @@
 #define MAXSTACK 7
 #define DRAW_STACK 0
 #define MATCHFIELDHEIGHT 16
+
+//structure of a card with its color and value stored and the stack on which it
+//currently lies. This structur is designed for generating a double linked list
+//with the Card pointer to the next and previous card.
 typedef struct _Card_
 {
   char color_;
@@ -30,11 +34,26 @@ typedef struct _Card_
 
 } Card;
 
+//structure of a stack with the pointer to its top_card (the card which in
+//reallity would be on top of a stack. I. e. the card you can draw of the
+// draw stack), the pointer to its bottom card (the card lying on the
+// desk/table) and the type of the stack (i.e. DRAW_STACK, GAME_STACK or
+// DEPOSIT_STACK).
+//In the further code there will be to names use to describe a struct Stack:
+//Stack: is a non-movable Stack like the three types exampled above.
+//Pile: a temporarily generated stack structure to simplify the moving process
+//of one or more cards, with the pointer to its top card and the pointer to its
+//bottom card. If you just move one card the bottom and top card pointer is the
+//same.
 typedef struct _Stack_ {
   Card *top_card_;
   char *stack_type_;
   Card *bottom_card_;
 } Stack;
+
+//possible returns of the programm on exit or for info messages (i.e. bad move)
+//this code is adapted from the code of the assignment 1 template (ass1.c)
+//written by Florian Bernhardt
 typedef enum _ReturnState_
 {
   OK = 0,
@@ -47,7 +66,7 @@ typedef enum _ReturnState_
 
 //------------------------------------------------------------------------------
 ///
-/// Function to find the next word in a string where each word is divided by any number of blankspaces
+/// Function to find the next character in a string which is not a space char
 ///
 /// @param char *string string to find the start of the next word in 
 ///
@@ -65,9 +84,9 @@ char *ignoreBlankspaces(char *string)
 
 //------------------------------------------------------------------------------
 ///
-/// Function to set free the used heap memory for stacks
+/// Function to set free the used heap memory for the cards
 ///
-/// @param Stack *stack_array array of stacks to free the used memory of 
+/// @param Stack *stack_array array of stacks to be able to access all *Cards
 //
 
 void freeAllCardMemories(Stack *stack_array)
@@ -91,7 +110,8 @@ void freeAllCardMemories(Stack *stack_array)
 ///
 /// @param ReturnState return_value which error message to print
 ///
-/// @return ReturnState return_value to end the program with the right return value
+/// @return ReturnState return_value to end the program
+///                     with the right return value
 //
 
 ReturnState printErrorMessage(ReturnState return_value)
@@ -122,11 +142,11 @@ ReturnState printErrorMessage(ReturnState return_value)
 
 //------------------------------------------------------------------------------
 ///
-/// Functron to transform a cart into a stack object 
+/// Function to transform a single card into a Pile (struct Stack)
 ///
 /// @param Card *card card card to make into a pile
 ///
-/// @return pile stack of the 1 card 
+/// @return Stack *pile stack of the 1 card
 //
 
 Stack *makeSingleCardToPile(Card *card)
@@ -143,9 +163,9 @@ Stack *makeSingleCardToPile(Card *card)
 
 //------------------------------------------------------------------------------
 ///
-/// Function to add a number of card or only 1 to another Stack
+/// Function to add multiple or just one Card to a Stack
 ///
-/// @param Stack *add_pile which stack to add
+/// @param Stack *add_pile which pile to add to the stack
 /// @param Stack *to_stack which stack to add it to 
 //
 
@@ -172,9 +192,9 @@ void addPileToStackTop(Stack *add_pile, Stack *to_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Funktion to determine is the stack move is valid
+/// Funktion to determine if the move command of the user is valid
 ///
-/// @param Stack *moving_pile stack to move
+/// @param Stack *moving_pile pile to move
 /// @param Stack *destination_stack stack to move to
 ///
 /// @return ReturnState if the move is invalid or ok
@@ -230,13 +250,15 @@ ReturnState checkValidMove(Stack *moving_pile, Stack *destination_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Function to find the Pile a card is in 
+/// Function to find a Card by its color and value and returning the Pile
+/// containing the found Card pointer as bottom_card_ and the last of all cards
+/// above as top_card_
 ///
-/// @param char color color of the card to search
-/// @param int value value of the card to search
-/// @param Stack *stack_array array of all game stacks
+/// @param char color color of the card to search for
+/// @param int value value of the card to search for
+/// @param Stack *stack_array array of all card stacks
 ///
-/// @return Stack *moving_pile pile where the card is 
+/// @return Stack *moving_pile pile where the matching card is its bottom card
 //
 
 Stack *findCardPileByColorValue (char color, int value, Stack *stack_array)
@@ -310,7 +332,7 @@ void movePile(Stack *pile_to_move, Stack *to_stack)
 ///
 /// Function to deal out the initial cards
 ///
-/// @param Stack *stack_array array of game stacks 
+/// @param Stack *stack_array array of all stacks
 //
 void initialHandOut (Stack *stack_array)
 {
@@ -328,7 +350,7 @@ void initialHandOut (Stack *stack_array)
 
 //------------------------------------------------------------------------------
 ///
-/// Function to check if a card from the config file is valid
+/// Function to check if there is no double card in the config file
 ///
 /// @param char color color of the card 
 /// @param int value value of the card
@@ -351,12 +373,12 @@ ReturnState checkCard (char color, int value)
 
 //------------------------------------------------------------------------------
 ///
-/// Function to transform the card value [A-K] into integer values 
+/// Function to transform the card value as character into integer values
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
+/// @param char current_character the character that has to be transformed
 ///
-/// @return int value ot the card
+/// @return int value of the card as integer with a special treatment of the
+///         value "10"
 //
 
 int getValueAsInt(char current_character)
@@ -421,7 +443,7 @@ int getValueAsInt(char current_character)
 /// @param int value value of the card 
 /// @param Stack *stack stack to put the card on
 ///
-/// @return Card created card
+/// @return *Card pointer to created card
 //
 
 Card *createNewCard(char color, int value, Stack *stack)
@@ -443,7 +465,7 @@ Card *createNewCard(char color, int value, Stack *stack)
 ///
 /// Function to read the config file 
 ///
-/// @param cost char *path_to_config_file filepath of the config file
+/// @param const char *path_to_config_file filepath of the config file
 /// @param Stack *draw_stack stack to put the initialized cards on
 ///
 /// @return ReturnState is the config file invalid or ok
@@ -574,9 +596,11 @@ ReturnState readInitFile(const char *path_to_config_file, Stack *draw_stack)
 //------------------------------------------------------------------------------
 ///
 /// Functron to convert the integer value of a card back to the face value [A-K]
+/// as string
 ///
 /// @param int value value of the card 
-/// @param chat *pointer_to_result_string face value of the card
+/// @param chat *pointer_to_result_string pointer to the string where the
+///        result of the function has to be copied in
 //
 
 void getValueAsString(int value, char *pointer_to_result_string)
