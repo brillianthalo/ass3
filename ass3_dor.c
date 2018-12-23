@@ -198,7 +198,8 @@ ReturnState checkValidMove(Stack *moving_pile, Stack *destination_stack)
     return INVALID_MOVE;
   }
   else if (destination_card == NULL) {
-    if (strcmp(destination_stack->stack_type_, "DEPOSIT") == 0 && moving_card->value_ != 1) {
+    if (strcmp(destination_stack->stack_type_, "DEPOSIT")
+      == 0 && moving_card->value_ != 1) {
       free(moving_pile);
       return INVALID_MOVE;
     }
@@ -329,7 +330,8 @@ void initialHandOut (Stack *stack_array)
     for(int distribute = (1 + offset); distribute <= 4; distribute++)
     {
      // printf("distribute: %i\n", distribute);
-      Stack *pile_to_move = makeSingleCardToPile((stack_array + DRAW_STACK)->top_card_);
+      Stack *pile_to_move =
+        makeSingleCardToPile((stack_array + DRAW_STACK)->top_card_);
       movePile(pile_to_move, stack_array + distribute);
     }
   }
@@ -353,7 +355,8 @@ ReturnState checkCard (char color, int value)
   {
     value += 13;
   }
-  ReturnState returnValue = (++(initialized_cards[value - 1]) == 1) ? OK : INVALID_CONFIG_FILE;
+  ReturnState returnValue = (++(initialized_cards[value - 1]) == 1)
+    ? OK : INVALID_CONFIG_FILE;
   return returnValue;
 }
 
@@ -553,7 +556,8 @@ ReturnState readInitFile(const char *path_to_config_file, Stack *draw_stack)
           return check_card_return;
         }
         card_count++;
-        Card *new_card = createNewCard(current_color, current_value, draw_stack);
+        Card *new_card =
+          createNewCard(current_color, current_value, draw_stack);
         if(new_card == NULL)
         {
           return OUT_OF_MEMORY;
@@ -661,7 +665,8 @@ void printMatchfield (Stack *stack_array)
         current_value = current_card->value_;
         getValueAsString(current_value, current_value_to_string);
       }
-      printf("%c%s%s", current_color, current_value_to_string, current_column_end);
+      printf("%c%s%s", current_color,
+        current_value_to_string, current_column_end);
       current_pointer[current_col] = (current_card != NULL)
         ? current_card->previous_ : NULL;
 
@@ -738,7 +743,8 @@ ReturnState doMove(char *input, Stack *stack_array)
   {
     return INVALID_COMMAND;
   }
-  Stack *pile_to_move = findCardPileByColorValue(input_color, input_value, stack_array);
+  Stack *pile_to_move =
+    findCardPileByColorValue(input_color, input_value, stack_array);
   if(pile_to_move == NULL)
   {
     return OUT_OF_MEMORY;
@@ -750,7 +756,8 @@ ReturnState doMove(char *input, Stack *stack_array)
   }
   else
   {
-    ReturnState return_value = checkValidMove(pile_to_move, stack_array + input_stack);
+    ReturnState return_value =
+      checkValidMove(pile_to_move, stack_array + input_stack);
     if(return_value == OK)
     {
       movePile(pile_to_move, stack_array + input_stack);
@@ -801,9 +808,11 @@ int main(int argc, char *argv[])
 
     unsigned int current_input_size = 0;
     char current_input_char;
-    while((current_input_char = getchar()) != '\n' && current_input_char != '\r' && current_input_char != EOF)
+    while((current_input_char = getchar()) != '\n'
+      && current_input_char != '\r' && current_input_char != EOF)
     {
-      input_memory_location = realloc(input_memory_location, current_input_size + 1);
+      input_memory_location =
+        realloc(input_memory_location, current_input_size + 1);
       if(input_memory_location == NULL)
       {
         freeAllCardMemories(stack_array);
@@ -812,7 +821,8 @@ int main(int argc, char *argv[])
       input_memory_location[current_input_size] = toupper(current_input_char);
       current_input_size++;
     }
-    input_memory_location = realloc(input_memory_location, current_input_size + 1);
+    input_memory_location =
+      realloc(input_memory_location, current_input_size + 1);
     if(input_memory_location == NULL)
     {
       freeAllCardMemories(stack_array);
@@ -836,7 +846,10 @@ int main(int argc, char *argv[])
     if(strncmp(input, "HELP", 4) == 0)
     {
       free(input_memory_location);
-      printf("possible command:\n - move <color> <value> to <stacknumber>\n - help\n - exit\n");
+      printf("possible command:\n"
+             " - move <color> <value> to <stacknumber>\n"
+             " - help\n"
+             " - exit\n");
     }
     else if(strncmp(input, "MOVE", 4) == 0)
     {
