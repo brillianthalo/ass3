@@ -53,7 +53,7 @@ typedef enum _ReturnState_
 /// @return value of ReturnValue which defines type of error
 //
 
-char* ignoreBlankspaces(char *string)
+char *ignoreBlankspaces(char *string)
 {
   while(string[0] == ' ')
   {
@@ -72,36 +72,19 @@ char* ignoreBlankspaces(char *string)
 /// @return value of ReturnValue which defines type of error
 //
 
-int freeAllCardMems(Stack *stack_array)
+void freeAllCardMemories(Stack *stack_array)
 {
   for(int current_stack = 0; current_stack < MAXSTACK; current_stack++)
   {
-    Card *head_card = (stack_array + current_stack)->top_card_;
-    Card *tmp_card;
-    while(head_card != NULL)
+    Card *current_card = (stack_array + current_stack)->top_card_;
+    Card *saved_card_pointer;
+    while(current_card != NULL)
     {
-      tmp_card = head_card;
-      head_card = head_card->next_;
-      free(tmp_card);
+      saved_card_pointer = current_card;
+      current_card = current_card->next_;
+      free(saved_card_pointer);
     }
   }
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-///
-/// Entry function of the program for ass1
-///
-/// @param argc number of arguments
-/// @param argv program arguments
-///
-/// @return value of ReturnValue which defines type of error
-//
-
-int printHelp()
-{
-  printf("possible command:\n - move <color> <value> to <stacknumber>\n - help\n - exit\n");
-  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -150,7 +133,7 @@ ReturnState printErrorMessage(ReturnState return_value)
 /// @return value of ReturnValue which defines type of error
 //
 
-Stack* makeSingleCardToPile(Card *card)
+Stack *makeSingleCardToPile(Card *card)
 {
   Stack *pile = malloc(sizeof(Stack));
   if(pile == NULL)
@@ -172,26 +155,25 @@ Stack* makeSingleCardToPile(Card *card)
 /// @return value of ReturnValue which defines type of error
 //
 
-int addPileToStackTop(Stack *add_pile, Stack *card_stack)
+void addPileToStackTop(Stack *add_pile, Stack *to_stack)
 {
-  Card *new_card = add_pile->bottom_card_;
-  new_card->next_ = card_stack->top_card_;
-  if(card_stack->top_card_ != NULL)
+  Card *moving_bottom_card = add_pile->bottom_card_;
+  moving_bottom_card->next_ = to_stack->top_card_;
+  if(to_stack->top_card_ != NULL)
   {
-    card_stack->top_card_->previous_ = new_card;
+    to_stack->top_card_->previous_ = moving_bottom_card;
   }
-  card_stack->top_card_ = add_pile->top_card_;
-  if(card_stack->bottom_card_ == NULL)
+  to_stack->top_card_ = add_pile->top_card_;
+  if(to_stack->bottom_card_ == NULL)
   {
-    card_stack->bottom_card_ = new_card;
+    to_stack->bottom_card_ = moving_bottom_card;
   }
-  while(new_card != NULL)
+  while(moving_bottom_card != NULL)
   {
-    new_card->stack_ = card_stack;
-    new_card = new_card->previous_;
+    moving_bottom_card->stack_ = to_stack;
+    moving_bottom_card = moving_bottom_card->previous_;
   }
   free(add_pile);
-  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -262,7 +244,7 @@ ReturnState checkValidMove(Stack *moving_pile, Stack *destination_stack)
 /// @return value of ReturnValue which defines type of error
 //
 
-Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
+Stack *findCardPileByColorValue (char color, int value, Stack *stack_array)
 {
   Stack *moving_pile = malloc(sizeof(Stack));
   Card *current_card;
@@ -316,20 +298,19 @@ Stack* findCardPileByColorValue (char color, int value, Stack *stack_array)
 /// @return value of ReturnValue which defines type of error
 //
 
-int movePile(Stack *moving_pile, Stack *to_stack)
+void movePile(Stack *pile_to_move, Stack *to_stack)
 {
-  Card *moving_card = moving_pile->bottom_card_;
-  moving_card->stack_->top_card_ = moving_card->next_;
-  if(moving_card->next_ != NULL)
+  Card *card_to_move = pile_to_move->bottom_card_;
+  card_to_move->stack_->top_card_ = card_to_move->next_;
+  if(card_to_move->next_ != NULL)
   {
-    moving_card->next_->previous_ = NULL;
+    card_to_move->next_->previous_ = NULL;
   }
   else
   {
-    moving_card->stack_->bottom_card_ = NULL;
+    card_to_move->stack_->bottom_card_ = NULL;
   }
-  addPileToStackTop(moving_pile, to_stack);
-  return 0;
+  addPileToStackTop(pile_to_move, to_stack);
 }
 
 //------------------------------------------------------------------------------
@@ -341,19 +322,17 @@ int movePile(Stack *moving_pile, Stack *to_stack)
 ///
 /// @return value of ReturnValue which defines type of error
 //
-
-int initialHandOut (Stack *stack_array)
+void initialHandOut (Stack *stack_array)
 {
   for(int offset = 0; offset < 4; offset++)
   {
     for(int distribute = (1 + offset); distribute <= 4; distribute++)
     {
      // printf("distribute: %i\n", distribute);
-      Stack *move_pile = makeSingleCardToPile((stack_array + DRAW_STACK)->top_card_);
-      movePile(move_pile, stack_array + distribute);
+      Stack *pile_to_move = makeSingleCardToPile((stack_array + DRAW_STACK)->top_card_);
+      movePile(pile_to_move, stack_array + distribute);
     }
   }
-  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -452,7 +431,7 @@ int getValueAsInt(char current_character)
 /// @return value of ReturnValue which defines type of error
 //
 
-Card* createNewCard(char color, int value, Stack *stack)
+Card *createNewCard(char color, int value, Stack *stack)
 {
   Card *new_card = malloc(sizeof(Card));
   if(new_card == NULL)
@@ -477,10 +456,10 @@ Card* createNewCard(char color, int value, Stack *stack)
 /// @return value of ReturnValue which defines type of error
 //
 
-ReturnState readInitFile(const char *path, Stack *draw_stack)
+ReturnState readInitFile(const char *path_to_config_file, Stack *draw_stack)
 {
-  FILE *fp = fopen(path, "r");
-  if(fp == NULL)
+  FILE *file_pointer = fopen(path_to_config_file, "r");
+  if(file_pointer == NULL)
   {
     return INVALID_CONFIG_FILE;
   }
@@ -489,9 +468,9 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
   int current_value;
   int status = 1;
   int card_count = 0;
-  while(!feof(fp))
+  while(!feof(file_pointer))
   {
-    int current_character = fgetc(fp);
+    int current_character = fgetc(file_pointer);
     if(current_character == '\r')
     {
       continue;
@@ -565,7 +544,7 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
         current_value = getValueAsInt(current_character);
         if(current_value == 0)
         {
-          current_character = fgetc(fp);
+          current_character = fgetc(file_pointer);
           current_value = getValueAsInt(current_character);
         }
         ReturnState check_card_return = checkCard(current_color, current_value);
@@ -594,7 +573,7 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
     }
   }
   ReturnState return_value = (card_count == 26) ? OK : INVALID_CONFIG_FILE;
-  fclose(fp);
+  fclose(file_pointer);
   return return_value;
 }
 
@@ -608,32 +587,31 @@ ReturnState readInitFile(const char *path, Stack *draw_stack)
 /// @return value of ReturnValue which defines type of error
 //
 
-int getValueAsString(int value, char *current_value_to_s)
+void getValueAsString(int value, char *pointer_to_result_string)
 {
   switch (value)
   {
     case 1:
-      strcpy(current_value_to_s, "A ");
+      strcpy(pointer_to_result_string, "A ");
       break;
     case 10:
-      strcpy(current_value_to_s, "10");
+      strcpy(pointer_to_result_string, "10");
       break;
     case 11:
-      strcpy(current_value_to_s, "J ");
+      strcpy(pointer_to_result_string, "J ");
       break;
     case 12:
-      strcpy(current_value_to_s, "Q ");
+      strcpy(pointer_to_result_string, "Q ");
       break;
     case 13:
-      strcpy(current_value_to_s, "K ");
+      strcpy(pointer_to_result_string, "K ");
       break;
     default:
-      current_value_to_s[0] = '0' + value;
-      current_value_to_s[1] = ' ';
-      current_value_to_s[2] = '\0';
+      pointer_to_result_string[0] = '0' + value;
+      pointer_to_result_string[1] = ' ';
+      pointer_to_result_string[2] = '\0';
       break;
   }
-  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -646,51 +624,50 @@ int getValueAsString(int value, char *current_value_to_s)
 /// @return value of ReturnValue which defines type of error
 //
 
-int printMatchfield (Stack *stack_array)
+void printMatchfield (Stack *stack_array)
 {
   printf("0   | 1   | 2   | 3   | 4   | DEP | DEP\n");
   printf("---------------------------------------\n");
   Card* current_pointer[MAXSTACK];
   for(int pointer_copy = 0; pointer_copy < MAXSTACK; pointer_copy++)
   {
-    *(current_pointer + pointer_copy) = (stack_array + pointer_copy)->bottom_card_;
+    current_pointer[pointer_copy] = (stack_array + pointer_copy)->bottom_card_;
   }
   for(int current_matchfield_row = 0; current_matchfield_row < MATCHFIELDHEIGHT;
     current_matchfield_row++)
   {
     for(int current_col = 0; current_col < MAXSTACK; current_col++)
     {
-      char current_col_end[4] = "\0";
+      char current_column_end[4] = "\0";
       char current_color;
       int current_value;
-      char current_value_to_s[3] = "\0";
-      (current_col != (MAXSTACK - 1)) ? strcpy(current_col_end, " | ")
-        : strcpy(current_col_end, "\0");
-      Card* current_card = *(current_pointer + current_col);
+      char current_value_to_string[3] = "\0";
+      (current_col != (MAXSTACK - 1)) ? strcpy(current_column_end, " | ")
+        : strcpy(current_column_end, "\0");
+      Card *current_card = current_pointer[current_col];
       if(current_card == NULL)
       {
         current_color = ' ';
-        strcpy(current_value_to_s, "  ");
+        strcpy(current_value_to_string, "  ");
       }
       else if (current_col == DRAW_STACK && current_card->previous_ != NULL)
       {
         current_color = 'X';
-        strcpy(current_value_to_s, "  ");
+        strcpy(current_value_to_string, "  ");
       }
       else
       {
         current_color = current_card->color_;
         current_value = current_card->value_;
-        getValueAsString(current_value, current_value_to_s);
+        getValueAsString(current_value, current_value_to_string);
       }
-      printf("%c%s%s", current_color, current_value_to_s, current_col_end);
+      printf("%c%s%s", current_color, current_value_to_string, current_column_end);
       current_pointer[current_col] = (current_card != NULL)
         ? current_card->previous_ : NULL;
 
     }
     printf("\n");
   }
-  return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -708,7 +685,6 @@ ReturnState doMove(char *input, Stack *stack_array)
   char input_color;
   int input_value;
   int input_stack;
-  ReturnState return_value;
   input = ignoreBlankspaces(input);
   if(strncmp(input, "RED", 3) == 0)
   {
@@ -758,7 +734,10 @@ ReturnState doMove(char *input, Stack *stack_array)
     return INVALID_COMMAND;
   }
   input = ignoreBlankspaces(input);
-
+  if(input[0] != '\0')
+  {
+    return INVALID_COMMAND;
+  }
   Stack *pile_to_move = findCardPileByColorValue(input_color, input_value, stack_array);
   if(pile_to_move == NULL)
   {
@@ -771,7 +750,7 @@ ReturnState doMove(char *input, Stack *stack_array)
   }
   else
   {
-    return_value = checkValidMove(pile_to_move, stack_array + input_stack);
+    ReturnState return_value = checkValidMove(pile_to_move, stack_array + input_stack);
     if(return_value == OK)
     {
       movePile(pile_to_move, stack_array + input_stack);
@@ -792,8 +771,6 @@ ReturnState doMove(char *input, Stack *stack_array)
 
 int main(int argc, char* argv[])
 {
-  int exit_status = 1;
-
   Stack stack_array[7] = {{NULL, "DRAW", NULL},
                           {NULL, "GAME", NULL},
                           {NULL, "GAME", NULL},
@@ -801,7 +778,11 @@ int main(int argc, char* argv[])
                           {NULL, "GAME", NULL},
                           {NULL, "DEPOSIT", NULL},
                           {NULL, "DEPOSIT", NULL}};
-
+  if(argc != 2)
+  {
+    printErrorMessage(INVALID_ARGS);
+    return INVALID_ARGS;
+  }
   ReturnState return_value = readInitFile(argv[1], stack_array + DRAW_STACK);
 
   if(return_value != OK)
@@ -825,7 +806,7 @@ int main(int argc, char* argv[])
       input_memory_location = realloc(input_memory_location, current_input_size + 1);
       if(input_memory_location == NULL)
       {
-        freeAllCardMems(stack_array);
+        freeAllCardMemories(stack_array);
         return OUT_OF_MEMORY;
       }
       input_memory_location[current_input_size] = toupper(current_input_char);
@@ -834,22 +815,16 @@ int main(int argc, char* argv[])
     input_memory_location = realloc(input_memory_location, current_input_size + 1);
     if(input_memory_location == NULL)
     {
-      freeAllCardMems(stack_array);
+      freeAllCardMemories(stack_array);
       return OUT_OF_MEMORY;
     }
     input_memory_location[current_input_size] = '\0';
     if(current_input_char == EOF)
     {
-      freeAllCardMems(stack_array);
+      freeAllCardMemories(stack_array);
       free(input_memory_location);
       return 0;
     }
-    /*
-    else
-    {
-      freeAllCardMems(stack_array);
-      return OUT_OF_MEMORY;
-    }*/
     if(current_input_size == 0)
     {
       free(input_memory_location);
@@ -861,7 +836,7 @@ int main(int argc, char* argv[])
     if(strncmp(input, "HELP", 4) == 0)
     {
       free(input_memory_location);
-      printHelp();
+      printf("possible command:\n - move <color> <value> to <stacknumber>\n - help\n - exit\n");
     }
     else if(strncmp(input, "MOVE", 4) == 0)
     {
@@ -878,14 +853,14 @@ int main(int argc, char* argv[])
       }
       else
       {
-        freeAllCardMems(stack_array);
+        freeAllCardMemories(stack_array);
         return move_return_state;
       }
     }
     else if(strncmp(input, "EXIT", 4) == 0 || input[0] == EOF)
     {
       free(input_memory_location);
-      freeAllCardMems(stack_array);
+      freeAllCardMemories(stack_array);
       return 0;
     }
     else
