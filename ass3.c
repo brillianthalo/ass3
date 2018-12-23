@@ -172,7 +172,7 @@ void addPileToStackTop(Stack *add_pile, Stack *to_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Funktion to dtermine is the stack move is valid
+/// Funktion to determine is the stack move is valid
 ///
 /// @param Stack *moving_pile stack to move
 /// @param Stack *destination_stack stack to move to
@@ -230,12 +230,13 @@ ReturnState checkValidMove(Stack *moving_pile, Stack *destination_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to find the Pile a card is in 
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
+/// @param char color color of the card to search
+/// @param int value value of the card to search
+/// @param Stack *stack_array array of all game stacks
 ///
-/// @return value of ReturnValue which defines type of error
+/// @return Stack *moving_pile pile where the card is 
 //
 
 Stack *findCardPileByColorValue (char color, int value, Stack *stack_array)
@@ -284,12 +285,10 @@ Stack *findCardPileByColorValue (char color, int value, Stack *stack_array)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to move a pile of cards to another stack
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
-///
-/// @return value of ReturnValue which defines type of error
+/// @param the pile to move 
+/// @param the stack to move the pile to
 //
 
 void movePile(Stack *pile_to_move, Stack *to_stack)
@@ -309,12 +308,9 @@ void movePile(Stack *pile_to_move, Stack *to_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to deal out the initial cards
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
-///
-/// @return value of ReturnValue which defines type of error
+/// @param Stack *stack_array array of game stacks 
 //
 void initialHandOut (Stack *stack_array)
 {
@@ -332,12 +328,12 @@ void initialHandOut (Stack *stack_array)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to check if a card from the config file is valid
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
+/// @param char color color of the card 
+/// @param int value value of the card
 ///
-/// @return value of ReturnValue which defines type of error
+/// @return Returnstate is the config file ok or invalid
 //
 
 ReturnState checkCard (char color, int value)
@@ -355,12 +351,12 @@ ReturnState checkCard (char color, int value)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to transform the card value [A-K] into integer values 
 ///
 /// @param argc number of arguments
 /// @param argv program arguments
 ///
-/// @return value of ReturnValue which defines type of error
+/// @return int value ot the card
 //
 
 int getValueAsInt(char current_character)
@@ -419,12 +415,13 @@ int getValueAsInt(char current_character)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to create a new card
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
+/// @param char color color of the card
+/// @param int value value of the card 
+/// @param Stack *stack stack to put the card on
 ///
-/// @return value of ReturnValue which defines type of error
+/// @return Card created card
 //
 
 Card *createNewCard(char color, int value, Stack *stack)
@@ -444,12 +441,12 @@ Card *createNewCard(char color, int value, Stack *stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to read the config file 
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
+/// @param cost char *path_to_config_file filepath of the config file
+/// @param Stack *draw_stack stack to put the initialized cards on
 ///
-/// @return value of ReturnValue which defines type of error
+/// @return ReturnState is the config file invalid or ok
 //
 
 ReturnState readInitFile(const char *path_to_config_file, Stack *draw_stack)
@@ -576,12 +573,10 @@ ReturnState readInitFile(const char *path_to_config_file, Stack *draw_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Functron to convert the integer value of a card back to the face value [A-K]
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
-///
-/// @return value of ReturnValue which defines type of error
+/// @param int value value of the card 
+/// @param chat *pointer_to_result_string face value of the card
 //
 
 void getValueAsString(int value, char *pointer_to_result_string)
@@ -613,12 +608,9 @@ void getValueAsString(int value, char *pointer_to_result_string)
 
 //------------------------------------------------------------------------------
 ///
-/// Entry function of the program for ass1
+/// Function to print the game layout 
 ///
-/// @param argc number of arguments
-/// @param argv program arguments
-///
-/// @return value of ReturnValue which defines type of error
+/// @param Stack *stack_array array of the game stacks
 //
 
 void printMatchfield (Stack *stack_array)
@@ -672,10 +664,10 @@ void printMatchfield (Stack *stack_array)
 ///
 /// function for evaluating and executing the "MOVE" user command
 ///
-/// @param *input pointer to the input-string
-/// @param *stack_array pointer to array of stacks
+/// @param char *input pointer to the input-string
+/// @param Stack *stack_array pointer to array of stacks
 ///
-/// @return value of ReturnValue which defines type of error
+/// @return Returnstate is the command invalid or ok
 //
 
 ReturnState doMove(char *input, Stack *stack_array)
