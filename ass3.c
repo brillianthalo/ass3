@@ -142,7 +142,7 @@ ReturnState printErrorMessage(ReturnState return_value)
 
 //------------------------------------------------------------------------------
 ///
-/// Function to transform a single card into a Pile (struct Stack)
+/// Function to transform a single card into a pile (struct Stack)
 ///
 /// @param Card *card card card to make into a pile
 ///
@@ -192,7 +192,7 @@ void addPileToStackTop(Stack *add_pile, Stack *to_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Funktion to determine if the move command of the user is valid
+/// Function to determine if the move command of the user is valid
 ///
 /// @param Stack *moving_pile pile to move
 /// @param Stack *destination_stack stack to move to
@@ -595,7 +595,7 @@ ReturnState readInitFile(const char *path_to_config_file, Stack *draw_stack)
 
 //------------------------------------------------------------------------------
 ///
-/// Functron to convert the integer value of a card back to the face value [A-K]
+/// Function to convert the integer value of a card back to the face value [A-K]
 /// as string
 ///
 /// @param int value value of the card 
@@ -686,7 +686,7 @@ void printMatchfield (Stack *stack_array)
 
 //------------------------------------------------------------------------------
 ///
-/// function for evaluating and executing the "MOVE" user command
+/// Function for evaluating and executing the "MOVE" user command
 ///
 /// @param char *input pointer to the input-string
 /// @param Stack *stack_array pointer to array of stacks
